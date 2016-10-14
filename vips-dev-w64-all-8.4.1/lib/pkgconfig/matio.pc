@@ -1,0 +1,10 @@
+prefix=/home/john/GIT/build-win64/8.4/inst
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: MATIO
+Description: MATIO Library
+Version: 1.5.6
+Libs: -L${libdir} -lmatio  -lz
+Cflags: -I${includedir}  

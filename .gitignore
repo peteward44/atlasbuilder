@@ -1,0 +1,11 @@
+/.vs
+/x64
+/Debug
+/*.suo
+/*.sdf
+/*.opensdf
+/*.db
+/atlasbuilder/x64
+/atlasbuilder/Debug
+/atlasbuilder.exe
+/target/atlasbuilder.exe

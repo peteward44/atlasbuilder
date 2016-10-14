@@ -1,0 +1,14 @@
+prefix=/home/john/GIT/build-win64/8.4/inst
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: vips
+Description: Image processing library
+Version: 8.4.0
+Requires.private:  glib-2.0 libxml-2.0 gmodule-2.0 gobject-2.0 libgsf-1 fftw3 MagickCore lcms2 poppler-glib cairo librsvg-2.0 cairo openslide matio libwebp libtiff-4 libpng libexif
+Requires: gobject-2.0
+Libs: -L${libdir} -lvips 
+Libs.private:  -ljpeg
+Cflags: -I${includedir}
+
