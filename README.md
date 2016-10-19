@@ -1,5 +1,9 @@
 # Atlasbuilder
 
+Command line 2D png texture atlas generator. Uses MaxRects algorithm code borrowed from https://github.com/juj/RectangleBinPack
+Use libvips for image processing as it's crazy fast https://github.com/jcupitt/libvips
+
+
 ## building on windows
 
 Download mingw-w64
