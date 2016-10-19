@@ -94,19 +94,22 @@ bool AddSubImageIfPossible( const Options& options, const InputImage* input, con
 std::deque<OutputImage*> process( std::deque<InputImage*>& inputImageList, const Options& options ) {
 	// sort by given area (width * height)
 	std::sort( inputImageList.begin(), inputImageList.end(), [] ( const InputImage* lhs, const InputImage* rhs ) {
-//		std::cout << "Processing " << lhs->Name() << " and " << rhs->Name() << std::endl;
 		return lhs->Data()->Area() > rhs->Data()->Area();
 	} );
 
 	std::deque<OutputImage*> outputImageList;
+	outputImageList.push_back( new OutputImage( options ) );
 	std::size_t inputIndex = 0;
 	while ( inputIndex < inputImageList.size() ) {
 		const InputImage* input = inputImageList[inputIndex];
 		const bool added = AddSubImageIfPossible( options, input, outputImageList );
 		if ( !added ) {
-			// add a new output bitmap if an existing space can't be found
-			auto newOutput = new OutputImage( options );
-			outputImageList.push_back( newOutput );
+			if ( options.failOnTooBig ) {
+				throw std::runtime_error( "Too many input images - would exceed maximum output width/height" );
+			} else {
+				// add a new output bitmap if an existing space can't be found
+				outputImageList.push_back( new OutputImage( options ) );
+			}
 		} else {
 			// successfully added - move on
 			inputIndex++;

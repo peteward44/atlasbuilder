@@ -30,6 +30,7 @@ Options ParseArgv(int argc, char** argv) {
 		("output", boost::program_options::value<std::string>(), "set output name")
 		("maxOutputWidth", boost::program_options::value<int>(), "set maximum output image width")
 		("maxOutputHeight", boost::program_options::value<int>(), "set maximum output image height")
+		("failOnTooBig", boost::program_options::value<bool>(), "fail build if the maxOutputWidth and maxOutputHeight will be exceeded")
 		("rotation-enabled", boost::program_options::value<bool>(), "enable rotation on subimages")
 		("trim-enabled", boost::program_options::value<bool>(), "enable trim on subimages")
 		("output-pow2", boost::program_options::value<bool>(), "final output image should always be a power of 2")
@@ -94,6 +95,11 @@ Options ParseArgv(int argc, char** argv) {
 		std::cout << "options.maxOutputHeight " << options.maxOutputHeight << std::endl;
 	}
 
+	if ( vm.count("failOnTooBig") ) {
+		options.failOnTooBig = vm["failOnTooBig"].as<bool>();
+		std::cout << "options.failOnTooBig " << options.failOnTooBig << std::endl;
+	}
+	
 	if ( vm.count("rotation-enabled") ) {
 		options.rotationEnabled = vm["rotation-enabled"].as<bool>();
 		std::cout << "options.rotationEnabled " << options.rotationEnabled << std::endl;
@@ -124,7 +130,7 @@ Options ParseArgv(int argc, char** argv) {
 		for( std::string file : files ) {
 			boost::trim( file );
 			if ( file.length() > 0 ) {
-				std::cout << "Input file " << file << "(len) " << file.length() << std::endl;
+				std::cout << "Input file " << file << std::endl;
 				// TODO: check file exists
 				options.inputFiles.push_back( file );
 			}

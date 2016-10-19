@@ -63,6 +63,7 @@ void create( const Options& options, std::deque<InputImage*>& inputImages, float
 
 int main( int argc, char** argv )
 {
+	int retCode = 0;
 	try {
 		Options options = ParseArgv( argc, argv );
 		
@@ -83,9 +84,11 @@ int main( int argc, char** argv )
 	}
 	catch ( std::exception& e ) {
 		std::cerr << "Error " << e.what() << std::endl;
+		retCode = 1;
 	}
 	catch ( ... ) {
 		std::cerr << "Unknown error" << std::endl;
+		retCode = 1;
 	}
 
 	try {
@@ -93,6 +96,6 @@ int main( int argc, char** argv )
 	}
 	catch ( ... ) {}
 	
-    return 0;
+    return retCode;
 }
 

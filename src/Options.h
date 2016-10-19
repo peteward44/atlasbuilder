@@ -16,6 +16,7 @@ struct Options {
 		trimEnabled = false;
 		rotationEnabled = true;
 		finalImageIsPow2 = false;
+		failOnTooBig = true;
 		padding = 6;
 		boundaryAlignment = 16;
 		for (std::size_t i = 0; i < defaultResolutionsCount; ++i) {
@@ -31,6 +32,7 @@ struct Options {
 	bool rotationEnabled;
 	bool trimEnabled;
 	bool finalImageIsPow2;
+	bool failOnTooBig;
 	int padding;
 	int boundaryAlignment;
 };
