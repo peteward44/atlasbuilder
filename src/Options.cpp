@@ -47,6 +47,7 @@ Options ParseArgv(int argc, char** argv) {
 	boost::program_options::notify( vm );    
 
 	if ( vm.count("help") ) {
+		std::cout << desc << std::endl;
 		return Options();
 	}
 
