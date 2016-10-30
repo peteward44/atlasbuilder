@@ -13,7 +13,7 @@ using namespace vips;
 bool g_isInitialised = false;
 
 
-ImageData::ImageData( const std::string& filename ) {
+ImageData::ImageData( const std::string& filename ) : _x(0), _y(0) {
 	try {
 		_image = VImage::new_from_file( filename.c_str(), VImage::option()->set( "access",  VIPS_ACCESS_RANDOM /* VIPS_ACCESS_SEQUENTIAL_UNBUFFERED */ ) );
 		if ( _image.bands() == 3 ) {
@@ -31,13 +31,13 @@ ImageData::ImageData( const std::string& filename ) {
 	}
 }
 
-ImageData::ImageData(int width, int height) {
+ImageData::ImageData(int width, int height) : _x(0), _y(0) {
 	_width = width;
 	_height = height;
 	_image = CreateBlankImage( width, height );
 }
 
-ImageData::ImageData(ImageData* original, float resolution) {
+ImageData::ImageData(ImageData* original, float resolution) : _x(0), _y(0) {
 	_image = original->_image.resize( resolution );
 	_width = _image.width();
 	_height = _image.height();
@@ -120,3 +120,28 @@ void ImageData::Save(const std::string& filename) {
 	std::cout << "Saving to " << filename << std::endl;
 	_image.write_to_file( filename.c_str() );
 }
+
+void ImageData::Trim() {
+	// adjusted from https://github.com/jcupitt/libvips/issues/233
+	// sum rows and columns, then search for the first non-zero sum in each
+	VImage mask = _image.extract_band( 3 ); // extract alpha
+	VImage rows;
+	VImage columns = mask.profile( &rows );
+	const int top = columns.min();
+	const int left = rows.min();
+	VImage flippedMask = mask.flip( VIPS_DIRECTION_HORIZONTAL ).flip( VIPS_DIRECTION_VERTICAL );
+	VImage frows;
+	VImage fcolumns = flippedMask.profile( &frows );
+	const int bottom = fcolumns.min();
+	const int right = frows.min();
+//	std::cout << "left " << left << " right " << right << std::endl;
+//	std::cout << "top " << top << " bottom " << bottom << std::endl;
+	const int width = _width - right - left;
+	const int height = _height - bottom - top;
+	_image = _image.crop( left, top, width, height );
+	_x += left;
+	_y += top;
+	_width = width;
+	_height = height;
+}
+

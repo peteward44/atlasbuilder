@@ -26,8 +26,8 @@ void WriteManifest( const OutputImage* output, std::ostream& ostr, const std::st
 	const auto& subImages = output->SubImages();
 	ostr << "{";
 	ostr << "\"properties\":{";
-	ostr << "\"width\":" << output->VirtualWidth() << ",";
-	ostr << "\"height\":" << output->VirtualHeight() << ",";
+	ostr << "\"width\":" << output->Width() << ",";
+	ostr << "\"height\":" << output->Height() << ",";
 	ostr << "\"image\":" << filename;
 	ostr << "},";
 	ostr << "\"subImages\":{\"frames\":{";

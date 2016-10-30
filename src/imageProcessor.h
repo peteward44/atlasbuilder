@@ -6,7 +6,7 @@
 #include "OutputImage.h"
 #include "Options.h"
 
-std::deque<OutputImage*> process( std::deque<InputImage*>& inputImageList, const Options& options );
+OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& options );
 
 #endif
 

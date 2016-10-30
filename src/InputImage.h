@@ -15,16 +15,16 @@ class InputImage {
 	AtlasRect _trimmedRect; // rect containing x, y and w, h of trimmed image in comparison to original
 	bool _isTrimmed;
 	float _resolution;
-	ImageData* _imageData; // shortcut for ImageData for current resolution
-	std::map< float, ImageData* > _resolutionData; // keeps all data for each resolution
+	ImageData* _imageData;
+	
+	void _Trim();
+	void _AlignBoundary();
 public:
 	InputImage( const Options& options, const std::string& filename );
+	
+	void Prep();
 
-	void Trim();
-	void AlignBoundary();
-	void SelectResolution(float res);
-
-	ImageData* Data(float res = 0.0f) const;
+	inline ImageData* Data() const { return _imageData; }
 
 	inline int OriginalWidth() const { return _originalWidth; }
 	inline int OriginalHeight() const { return _originalHeight; }

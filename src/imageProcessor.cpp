@@ -1,120 +1,71 @@
 
 #include "main.h"
 #include "imageProcessor.h"
+#include "MaxRects.h"
 #include <string>
 #include <deque>
 #include <algorithm>
 #include <iostream>
 
 
-int GetPadding( const Options& options, int coord ) {
-	return coord == 0 ? 0 : options.padding;
-}
-
-bool ImageFitsInRect( const Options& options, const AtlasRect& rect, const InputImage* input, bool& isRotated ) {
-	if ( rect.w >= input->Data()->Width() + GetPadding( options, rect.x ) && rect.h >= input->Data()->Height() + GetPadding( options, rect.y ) ) {
-		isRotated = false;
-		return true;
-	} else if ( options.rotationEnabled && rect.w >= input->Data()->Height() + GetPadding( options, rect.x ) && rect.h >= input->Data()->Width() + GetPadding( options, rect.y ) ) {
-		isRotated = true;
-		return true;
-	} else {
-		isRotated = false;
-		return false;
+int RoundUpToPowerOf2( int num ) {
+	// TODO: probably more efficient way of doing this
+	for ( int test = 1; true; test *= 2 )
+	{
+		if ( num <= test )
+			return test;
 	}
 }
 
+// int GetPadding( const Options& options, int coord ) {
+	// return coord == 0 ? 0 : options.padding;
+// }
 
-bool InsertImage( const Options& options, const InputImage* input, OutputImage* output ) {
-	const auto& availableRects = output->AvailableRects();
-
-	for( std::size_t index=0; index<availableRects.size(); ++index ) {
-		const AtlasRect& rect = availableRects[index];
-		bool isRotated = false;
-		if ( ImageFitsInRect( options, rect, input, isRotated ) ) {
-			const int padx = GetPadding( options, rect.x );
-			const int pady = GetPadding( options, rect.y );
-			const int imgx = rect.x + padx;
-			const int imgy = rect.y + pady;
-			
-			// remove old rect, add 2 new ones
-			// when storing a square inside a larger square, will always leave 2 other rectangles, one on the bottom
-			// and one on the right. These rects are added to a list and then used to see if any future input images can fit
-			const int width = input->Data()->Width() + padx;
-			const int height = input->Data()->Height() + pady;
-			output->SplitRect( index, isRotated ? height : width, isRotated ? width : height );
-			output->AddSubImage( input, isRotated, imgx, imgy );
-			return true;
-		}
-	}
-
-	return false;
-}
-
-
-bool AddSubImage( const Options& options, const InputImage* input, OutputImage* output, bool allowResize ) {
-	// attempt to fill a small power of 2 texture first, then expand it gradually up to the maximum size
-	// if the sub images don't fit. mVirtualSize is the size of the current rect we are trying to fill
-	if ( output->AvailableRects().size() == 0 ) {
-		// first time this output bitmap has been used, try using the smallest possible virtual texture size
-		output->InitVirtualSize( input->Data()->Width(), input->Data()->Height() );
-	}
-	if ( allowResize ) {
-		while ( !InsertImage( options, input, output ) )
-		{
-			// no images could be inserted in current image using current virtual size.
-			// increase virtual size and try again
-			if ( !output->IncreaseVirtualSize( options ) )
-				return false; // cannot fit anymore images into this output image
-		}
-		return true;
-	}
-	else
-		return InsertImage( options, input, output );
-}
-
-
-bool AddSubImageIfPossible( const Options& options, const InputImage* input, const std::deque<OutputImage*>& outputImageList ) {
-	// try adding to existing output bitmaps without resizing them
-	for ( auto it = outputImageList.begin(), itend = outputImageList.end(); it != itend; ++it ) {
-		if ( AddSubImage( options, input, *it, false ) ) {
-			return true;
-		}
-	}
-	// if not successful then try adding by resizing
-	for ( auto it = outputImageList.begin(), itend = outputImageList.end(); it != itend; ++it ) {
-		if ( AddSubImage( options, input, *it, true ) ) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
-std::deque<OutputImage*> process( std::deque<InputImage*>& inputImageList, const Options& options ) {
+OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& options ) {
 	// sort by given area (width * height)
 	std::sort( inputImageList.begin(), inputImageList.end(), [] ( const InputImage* lhs, const InputImage* rhs ) {
 		return lhs->Data()->Area() > rhs->Data()->Area();
 	} );
-
-	std::deque<OutputImage*> outputImageList;
-	outputImageList.push_back( new OutputImage( options ) );
-	std::size_t inputIndex = 0;
-	while ( inputIndex < inputImageList.size() ) {
-		const InputImage* input = inputImageList[inputIndex];
-		const bool added = AddSubImageIfPossible( options, input, outputImageList );
-		if ( !added ) {
-			if ( options.failOnTooBig ) {
-				throw std::runtime_error( "Too many input images - would exceed maximum output width/height" );
-			} else {
-				// add a new output bitmap if an existing space can't be found
-				outputImageList.push_back( new OutputImage( options ) );
-			}
-		} else {
-			// successfully added - move on
-			inputIndex++;
+	
+	// Estimate how big the new image should be, by calculating total area required and finding nearest power of 2
+	int biggestWidth = 0;
+	int biggestHeight = 0;
+	int totalArea = 0;
+	for ( const InputImage* input : inputImageList ) {
+		totalArea += input->Data()->Area();
+		const int w = input->Data()->Width();
+		const int h = input->Data()->Height();
+		if ( biggestWidth < w ) {
+			biggestWidth = w;
+		}
+		if ( biggestHeight < h ) {
+			biggestHeight = h;
 		}
 	}
-	return outputImageList;
+	int finalWidth = RoundUpToPowerOf2( biggestWidth );
+	int finalHeight = RoundUpToPowerOf2( biggestHeight );
+	int finalArea = finalWidth * finalHeight;
+	// alternatively increase width / height until it's big enough
+	while ( finalArea < totalArea ) {
+		if ( finalWidth < finalHeight ) {
+			finalWidth *= 2;
+		} else {
+			finalHeight *= 2;
+		}
+		finalArea = finalWidth * finalHeight;
+	}
+	
+	OutputImage* outputImage = new OutputImage( options, finalWidth, finalHeight );
+	rbp::MaxRectsBinPack binPacker( finalWidth, finalHeight );
+
+	// Put the images into the bin packer, using the MaxRects algorithm
+	for ( const InputImage* input : inputImageList ) {
+	// TODO: detect if inserting image fails due to not enough space and handle
+		AtlasRect insertedRect = binPacker.Insert( input->Data()->Width(), input->Data()->Height(), rbp::MaxRectsBinPack::RectBestShortSideFit );
+		std::cout << input->Name() << " pos " << insertedRect.x << "x" << insertedRect.y << std::endl;
+		const bool isRotated = insertedRect.w != input->Data()->Width();
+		outputImage->AddSubImage( input, isRotated, insertedRect.x, insertedRect.y );
+	}
+	return outputImage;
 }
 

@@ -19,24 +19,19 @@ struct SubImage {
 
 
 class OutputImage {
-	std::deque<AtlasRect> _availableRects;
 	Options _options;
+	int _w, _h;
 	int _actualWidth, _actualHeight;
-	int _virtualWidth, _virtualHeight;
 	std::deque<SubImage> _subImages;
-	void _AddAvailableRect( const AtlasRect& rect );
 	void _SortRects();
 public:
-	OutputImage( const Options& options );
-	void InitVirtualSize( int width, int height );
-	bool IncreaseVirtualSize( const Options& options );
-	void SplitRect( std::size_t rectIndex, int width, int height );
+	OutputImage( const Options& options, int w, int h );
 	void AddSubImage( const InputImage* input, bool isRotated, int x, int y );
 	void Finalise(const std::string& filename);
-	inline int VirtualWidth() const { return _virtualWidth; }
-	inline int VirtualHeight() const { return _virtualHeight; }
-	inline const std::deque<AtlasRect>& AvailableRects() const { return _availableRects; }
 	inline const std::deque<SubImage>& SubImages() const { return _subImages; }
+	inline int Width() const { return _w; }
+	inline int Height() const { return _h; }
+	
 };
 
 #endif

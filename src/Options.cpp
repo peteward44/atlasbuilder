@@ -26,7 +26,7 @@ Options ParseArgv(int argc, char** argv) {
 		("help", "produce help message")
 		("response-file", boost::program_options::value<std::string>(), "read in command line options from file (separated by newlines). Can be specified with '@name', too")
 		("input-files", boost::program_options::value< std::vector<std::string> >(), "input file(s)")
-		("resolution", boost::program_options::value< std::vector<float> >(), "resolutions to output")
+		("resolution", boost::program_options::value<float>(), "resolution to output (default is 1.0)")
 		("output", boost::program_options::value<std::string>(), "set output name")
 		("maxOutputWidth", boost::program_options::value<int>(), "set maximum output image width")
 		("maxOutputHeight", boost::program_options::value<int>(), "set maximum output image height")
@@ -138,14 +138,14 @@ Options ParseArgv(int argc, char** argv) {
 	}
 	
 	if ( vm.count( "resolution" ) ) {
-		options.resolutions = vm["resolution"].as< std::vector<float> >();
-		for( float res : options.resolutions ){
-			std::cout << "Outputting resolution " << res << std::endl;
-		}
+		options.resolution = vm["resolution"].as<float>();
+		std::cout << "Outputting resolution " << options.resolution << std::endl;
 	}
 	
 	if ( options.inputFiles.empty() ) {
 		std::cerr << "No input files specified on command line" << std::endl;
+		std::cout << std::endl;
+		std::cout << desc << std::endl;
 		return Options();
 	}
 	
