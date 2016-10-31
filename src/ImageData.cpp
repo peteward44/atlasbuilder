@@ -138,7 +138,7 @@ void ImageData::Trim() {
 //	std::cout << "top " << top << " bottom " << bottom << std::endl;
 	const int width = _width - right - left;
 	const int height = _height - bottom - top;
-	_image = _image.crop( left, top, width, height );
+	_image = _image.extract_area( left, top, width, height );
 	_x += left;
 	_y += top;
 	_width = width;
