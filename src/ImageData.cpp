@@ -16,6 +16,25 @@ bool g_isInitialised = false;
 ImageData::ImageData( const std::string& filename ) : _x(0), _y(0) {
 	try {
 		_image = VImage::new_from_file( filename.c_str(), VImage::option()->set( "access",  VIPS_ACCESS_RANDOM /* VIPS_ACCESS_SEQUENTIAL_UNBUFFERED */ ) );
+		if ( _image.bands() == 1 ) {
+			// grayscale images / no alpha
+			std::vector< vips::VImage > bands;
+			bands.push_back( _image );
+			bands.push_back( _image );
+			bands.push_back( _image );
+			_image = _image.bandjoin( bands );
+		}
+		if ( _image.bands() == 2 ) {
+			// grayscale image / with alpha
+			auto gray = _image.extract_band( 0 );
+			auto alpha = _image.extract_band( 1 );
+			std::vector< vips::VImage > bands;
+			bands.push_back( gray );
+			bands.push_back( gray );
+			bands.push_back( gray );
+			bands.push_back( alpha );
+			_image = _image.bandjoin( bands );
+		}
 		if ( _image.bands() == 3 ) {
 			// tried to do this by only using _image = _image.bandjoin( 255 ) which apparently should work,
 			// but instead of increasing band count from 3 -> 4 it would go from 3 -> 6... gave up and just create our own single-band image instead
@@ -24,6 +43,8 @@ ImageData::ImageData( const std::string& filename ) : _x(0), _y(0) {
 		}
 		_width = _image.width();
 		_height = _image.height();
+		_owidth = _image.width();
+		_oheight = _image.height();
 	}
 	catch ( std::exception& e ) {
 		std::cerr << "Error loading " << e.what() << std::endl;
@@ -34,6 +55,8 @@ ImageData::ImageData( const std::string& filename ) : _x(0), _y(0) {
 ImageData::ImageData(int width, int height) : _x(0), _y(0) {
 	_width = width;
 	_height = height;
+	_owidth = width;
+	_oheight = height;
 	_image = CreateBlankImage( width, height );
 }
 
@@ -41,6 +64,8 @@ ImageData::ImageData(ImageData* original, float resolution) : _x(0), _y(0) {
 	_image = original->_image.resize( resolution );
 	_width = _image.width();
 	_height = _image.height();
+	_owidth = _image.width();
+	_oheight = _image.height();
 }
 
 ImageData::~ImageData() {
@@ -97,13 +122,13 @@ ImageData* ImageData::createBlank(int width, int height) {
 }
 
 void ImageData::AddPadding(int left, int right, int top, int bottom) {
-	// surrounds image with transparent pixels, used for boundary alignment
-	// probably more efficient way of doing this but do it this way for now as it works seamlessly with resolution downsampling
-	std::cout << "Adding padding l=" << left << " r=" << right << " t=" << top << " b=" << bottom << std::endl;
-	VImage image = CreateBlankImage( _width + left + right, _height + top + bottom );
-	_image = image.insert( _image, left, top );
-	_width = _width + left + right;
-	_height = _height + top + bottom;
+	// // surrounds image with transparent pixels, used for boundary alignment
+	// // probably more efficient way of doing this but do it this way for now as it works seamlessly with resolution downsampling
+	// std::cout << "Adding padding l=" << left << " r=" << right << " t=" << top << " b=" << bottom << std::endl;
+	// VImage image = CreateBlankImage( _width + left + right, _height + top + bottom );
+	// _image = image.insert( _image, left, top );
+	// _width = _width + left + right;
+	// _height = _height + top + bottom;
 }
 
 void ImageData::InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated) {

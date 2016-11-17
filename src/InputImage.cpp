@@ -43,8 +43,8 @@ void InputImage::Prep() {
 	if ( _options.trimEnabled ) {
 		_Trim();
 	}
-	// if (options.boundaryAlignment > 0) {
-		// input->_AlignBoundary();
+	// 
+	_AlignBoundary();
 	// }
 }
 
@@ -58,16 +58,23 @@ void InputImage::_Trim() {
 
 
 void InputImage::_AlignBoundary() {
-	// auto it = _resolutionData.find(1.0f);
-	// ImageData* original = it->second;
-
+	// int left = 0, right = 0, top = 0, bottom = 0;
+	
 	// // pad out to width / height of multiple of _options.boundaryAlignment
+	// if (_options.boundaryAlignment > 0) {
+		// // number of pixels we are over the boundary alignment value
+		// const auto widthCorrection = CalculateBoundaryAlignment(original->Width(), _options.boundaryAlignment);
+		// left = widthCorrection.first;
+		// right = widthCorrection.second;
+		// const auto heightCorrection = CalculateBoundaryAlignment(original->Height(), _options.boundaryAlignment);
+		// top = heightCorrection.first;
+		// second = heightCorrection.second;
+	// } else if ( _options.padding > 0 ) {
+		// top = _options.padding;
+		// left = _options.padding;
+	// }
 
-	// // number of pixels we are over the boundary alignment value
-	// auto widthCorrection = CalculateBoundaryAlignment(original->Width(), _options.boundaryAlignment);
-	// auto heightCorrection = CalculateBoundaryAlignment(original->Height(), _options.boundaryAlignment);
-
-	// if ( widthCorrection.first > 0 || widthCorrection.second > 0 || heightCorrection.first > 0 || heightCorrection.second > 0 ) {
-		// original->AddPadding(widthCorrection.first, widthCorrection.second, heightCorrection.first, heightCorrection.second);
+	// if ( left > 0 || right > 0 || top > 0 || bottom > 0 ) {
+		// original->AddPadding( left, right, top, bottom );
 	// }
 }

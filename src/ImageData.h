@@ -12,6 +12,7 @@ class ImageData {
 	vips::VImage _image;
 	int _x, _y;
 	int _width, _height;
+	int _owidth, _oheight;
 	std::vector<unsigned char*> _rawData;
 
 	ImageData(const std::string& filename);
@@ -22,8 +23,12 @@ class ImageData {
 	
 public:
 	~ImageData();
+	inline int X() const { return _x; }
+	inline int Y() const { return _y; }
 	inline int Width() const { return _width; }
 	inline int Height() const { return _height; }
+	inline int OriginalWidth() const { return _owidth; }
+	inline int OriginalHeight() const { return _oheight; }
 	inline int Area() const { return _width * _height; }
 	
 	void Trim();
