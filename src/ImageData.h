@@ -10,9 +10,7 @@
 // Abstraction interface for vips
 class ImageData {
 	vips::VImage _image;
-	int _x, _y;
 	int _width, _height;
-	int _owidth, _oheight;
 	std::vector<unsigned char*> _rawData;
 
 	ImageData(const std::string& filename);
@@ -23,15 +21,11 @@ class ImageData {
 	
 public:
 	~ImageData();
-	inline int X() const { return _x; }
-	inline int Y() const { return _y; }
 	inline int Width() const { return _width; }
 	inline int Height() const { return _height; }
-	inline int OriginalWidth() const { return _owidth; }
-	inline int OriginalHeight() const { return _oheight; }
-	inline int Area() const { return _width * _height; }
+	inline int Area( int padding = 0 ) const { return ( _width + padding ) * ( _height + padding ); }
 	
-	void Trim();
+	AtlasRect Trim();
 
 	void AddPadding(int left, int right, int top, int bottom);
 	void InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated);

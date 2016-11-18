@@ -1,8 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <stdio.h>
-//#include <tchar.h>
+#include <cstdio>
+#include <cmath>
 
 
 struct AtlasRect {
@@ -22,6 +22,12 @@ struct AtlasRect {
 	}
 	inline bool IntersectsWith( const AtlasRect& rect ) const {
 		return PointInside( rect.x, rect.y ) || PointInside( rect.x, rect.y + rect.h ) || PointInside( rect.x + rect.w, rect.y ) || PointInside( rect.x + rect.w, rect.y + rect.h );
+	}
+	inline void Scale( float resolution ) {
+		x = floorf( x * resolution );
+		y = floorf( y * resolution );
+		w = floorf( w * resolution );
+		h = floorf( h * resolution );
 	}
 };
 

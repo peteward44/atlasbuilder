@@ -13,7 +13,7 @@ using namespace vips;
 bool g_isInitialised = false;
 
 
-ImageData::ImageData( const std::string& filename ) : _x(0), _y(0) {
+ImageData::ImageData( const std::string& filename ) {
 	try {
 		_image = VImage::new_from_file( filename.c_str(), VImage::option()->set( "access",  VIPS_ACCESS_RANDOM /* VIPS_ACCESS_SEQUENTIAL_UNBUFFERED */ ) );
 		if ( _image.bands() == 1 ) {
@@ -43,8 +43,6 @@ ImageData::ImageData( const std::string& filename ) : _x(0), _y(0) {
 		}
 		_width = _image.width();
 		_height = _image.height();
-		_owidth = _image.width();
-		_oheight = _image.height();
 	}
 	catch ( std::exception& e ) {
 		std::cerr << "Error loading " << e.what() << std::endl;
@@ -52,20 +50,16 @@ ImageData::ImageData( const std::string& filename ) : _x(0), _y(0) {
 	}
 }
 
-ImageData::ImageData(int width, int height) : _x(0), _y(0) {
+ImageData::ImageData(int width, int height) {
 	_width = width;
 	_height = height;
-	_owidth = width;
-	_oheight = height;
 	_image = CreateBlankImage( width, height );
 }
 
-ImageData::ImageData(ImageData* original, float resolution) : _x(0), _y(0) {
+ImageData::ImageData(ImageData* original, float resolution) {
 	_image = original->_image.resize( resolution );
 	_width = _image.width();
 	_height = _image.height();
-	_owidth = _image.width();
-	_oheight = _image.height();
 }
 
 ImageData::~ImageData() {
@@ -146,7 +140,7 @@ void ImageData::Save(const std::string& filename) {
 	_image.write_to_file( filename.c_str() );
 }
 
-void ImageData::Trim() {
+AtlasRect ImageData::Trim() {
 	// adjusted from https://github.com/jcupitt/libvips/issues/233
 	// sum rows and columns, then search for the first non-zero sum in each
 	VImage mask = _image.extract_band( 3 ); // extract alpha
@@ -164,9 +158,8 @@ void ImageData::Trim() {
 	const int width = _width - right - left;
 	const int height = _height - bottom - top;
 	_image = _image.extract_area( left, top, width, height );
-	_x += left;
-	_y += top;
 	_width = width;
 	_height = height;
+	return AtlasRect( left, top, width, height );
 }
 

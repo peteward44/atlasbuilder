@@ -40,10 +40,10 @@ void WriteManifest( const OutputImage* output, std::ostream& ostr, const std::st
 		ostr << "\"rotated\":" << BoolName( subImage.rotated ) << ",";
 		ostr << "\"trimmed\":" << BoolName( subImage.input->IsTrimmed() ) << ",";
 		ostr << "\"sourceSize\":";
-		ostr << "{\"w\":" << subImage.input->Data()->OriginalWidth() << ",\"h\":" << subImage.input->Data()->OriginalHeight() << "}";
+		ostr << "{\"w\":" << subImage.input->OriginalWidth() << ",\"h\":" << subImage.input->OriginalHeight() << "}";
 		ostr << ",";
 		ostr << "\"spriteSourceSize\":";
-		RectToJSON( AtlasRect( subImage.input->Data()->X(), subImage.input->Data()->Y(), subImage.input->Data()->Width(), subImage.input->Data()->Height() ), ostr);
+		RectToJSON( subImage.input->TrimmedRect(), ostr );
 		ostr << "}";
 		if ( index < subImages.size()-1 ) {
 			ostr << ",";
