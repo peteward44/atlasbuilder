@@ -81,7 +81,7 @@ VImage ImageData::CreateBlankImage( int width, int height, int bpp, int memsetVa
 
 
 // static
-void ImageData::initialise( int argc, char** argv ) {
+void ImageData::initialise( int argc, const char** argv ) {
 	// VIPS_INIT outputs warnings on -Wall - disable them as there's nothing i can do
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-extra-args"

@@ -33,6 +33,6 @@ struct Options {
 	int boundaryAlignment;
 };
 
-Options ParseArgv(int argc, char** argv);
+Options ParseArgv(int argc, const char** argv);
 
 #endif

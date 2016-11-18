@@ -1,4 +1,5 @@
 
+#include "atlasbuilder.h"
 #include "main.h"
 #include "imageProcessor.h"
 #include "ManifestWriter.h"
@@ -44,7 +45,7 @@ void create( const Options& options, std::deque<InputImage*>& inputImages ) {
 }
 
 
-int main( int argc, char** argv )
+int atlasbuilder( int argc, const char** argv )
 {
 	int retCode = 0;
 	try {

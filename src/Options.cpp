@@ -17,7 +17,7 @@ std::pair<std::string, std::string> at_option_parser( const std::string& s ) {
 		return std::pair<std::string, std::string>();
 }
 
-Options ParseArgv(int argc, char** argv) {
+Options ParseArgv(int argc, const char** argv) {
 	boost::program_options::positional_options_description inputFileDescription;
 	inputFileDescription.add("input-files", -1);
 	
