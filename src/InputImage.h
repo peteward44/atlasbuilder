@@ -16,6 +16,7 @@ class InputImage {
 	bool _isTrimmed;
 	float _resolution;
 	ImageData* _imageData;
+	int _baX, _baY;
 	
 	void _Trim();
 	void _AlignBoundary();

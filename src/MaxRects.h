@@ -42,7 +42,7 @@ public:
 	//void Insert(std::vector<AtlasRect> &rects, std::vector<AtlasRect> &dst, FreeRectChoiceHeuristic method);
 
 	/// Inserts a single rectangle into the bin, possibly rotated.
-	AtlasRect Insert(int width, int height, FreeRectChoiceHeuristic method);
+	AtlasRect Insert(int width, int height, FreeRectChoiceHeuristic method, bool rotationEnabled=true);
 
 	/// Computes the ratio of used surface area to the total bin area.
 	float Occupancy() const;
@@ -58,7 +58,7 @@ private:
 	/// @param score1 [out] The primary placement score will be outputted here.
 	/// @param score2 [out] The secondary placement score will be outputted here. This isu sed to break ties.
 	/// @return This struct identifies where the rectangle would be placed if it were placed.
-	AtlasRect ScoreRect(int width, int height, FreeRectChoiceHeuristic method, int &score1, int &score2) const;
+	AtlasRect ScoreRect(int width, int height, FreeRectChoiceHeuristic method, int &score1, int &score2, bool rotationEnabled) const;
 
 	/// Places the given rectangle into the bin.
 	void PlaceRect(const AtlasRect &node);
@@ -66,11 +66,11 @@ private:
 	/// Computes the placement score for the -CP variant.
 	int ContactPointScoreNode(int x, int y, int width, int height) const;
 
-	AtlasRect FindPositionForNewNodeBottomLeft(int width, int height, int &bestY, int &bestX) const;
-	AtlasRect FindPositionForNewNodeBestShortSideFit(int width, int height, int &bestShortSideFit, int &bestLongSideFit) const;
-	AtlasRect FindPositionForNewNodeBestLongSideFit(int width, int height, int &bestShortSideFit, int &bestLongSideFit) const;
-	AtlasRect FindPositionForNewNodeBestAreaFit(int width, int height, int &bestAreaFit, int &bestShortSideFit) const;
-	AtlasRect FindPositionForNewNodeContactPoint(int width, int height, int &contactScore) const;
+	AtlasRect FindPositionForNewNodeBottomLeft(int width, int height, int &bestY, int &bestX, bool rotationEnabled) const;
+	AtlasRect FindPositionForNewNodeBestShortSideFit(int width, int height, int &bestShortSideFit, int &bestLongSideFit, bool rotationEnabled) const;
+	AtlasRect FindPositionForNewNodeBestLongSideFit(int width, int height, int &bestShortSideFit, int &bestLongSideFit, bool rotationEnabled) const;
+	AtlasRect FindPositionForNewNodeBestAreaFit(int width, int height, int &bestAreaFit, int &bestShortSideFit, bool rotationEnabled) const;
+	AtlasRect FindPositionForNewNodeContactPoint(int width, int height, int &contactScore, bool rotationEnabled) const;
 
 	/// @return True if the free node was split.
 	bool SplitFreeNode(AtlasRect freeNode, const AtlasRect &usedNode);

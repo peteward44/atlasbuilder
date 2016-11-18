@@ -10,10 +10,32 @@
 
 int RoundUpToPowerOf2( int num ) {
 	// TODO: probably more efficient way of doing this
-	for ( int test = 1; true; test *= 2 )
-	{
+	for ( int test = 1; true; test *= 2 ) {
 		if ( num <= test )
 			return test;
+	}
+}
+
+bool ExpandSize( const Options& options, int& width, int& height ) {
+	if ( options.maxOutputWidth > width && width < height ) {
+		width *= 2;
+		return true;
+	} else if ( options.maxOutputHeight > height ) {
+		height *= 2;
+		return true;
+	} else {
+		if ( !options.failOnTooBig ) {
+			// has exceeded max size, so expand regardless of limits
+			if ( width < height ) {
+				width *= 2;
+			} else {
+				height *= 2;
+			}
+			return true;
+		} else {
+			// has exceeded max size and has been set to fail
+			return false;
+		}
 	}
 }
 
@@ -47,14 +69,15 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 	int finalWidth = RoundUpToPowerOf2( biggestWidth );
 	int finalHeight = RoundUpToPowerOf2( biggestHeight );
 	int finalArea = finalWidth * finalHeight;
+	
 	// alternatively increase width / height until it's big enough
 	while ( finalArea < totalArea ) {
-		if ( finalWidth < finalHeight ) {
-			finalWidth *= 2;
+		if ( ExpandSize( options, finalWidth, finalHeight ) ) {
+			finalArea = finalWidth * finalHeight;
 		} else {
-			finalHeight *= 2;
+			// might still be possible to build atlas if exceeded max limits - try it and see
+			break;
 		}
-		finalArea = finalWidth * finalHeight;
 	}
 	
 	bool failed;
@@ -67,14 +90,13 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 		// Put the images into the bin packer, using the MaxRects algorithm
 		for ( const InputImage* input : inputImageList ) {
 		// TODO: detect if inserting image fails due to not enough space and handle
-			AtlasRect insertedRect = binPacker.Insert( input->Data()->Width() + padding, input->Data()->Height() + padding, rbp::MaxRectsBinPack::RectBestShortSideFit );
+			AtlasRect insertedRect = binPacker.Insert( input->Data()->Width() + padding, input->Data()->Height() + padding, rbp::MaxRectsBinPack::RectBestShortSideFit, options.rotationEnabled );
 			if ( insertedRect.w == 0 && insertedRect.h == 0 ) {
 				// insertion failed - image not big enough. Start again with a larger starting image
+				// TODO: account for max output size limit and non-pow2 sizes
 				failed = true;
-				if ( finalWidth < finalHeight ) {
-					finalWidth *= 2;
-				} else {
-					finalHeight *= 2;
+				if ( !ExpandSize( options, finalWidth, finalHeight ) ) {
+					throw std::runtime_error( "Input images too large for output image size limits" );
 				}
 				break;
 			}

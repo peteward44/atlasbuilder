@@ -28,9 +28,9 @@ Options ParseArgv(int argc, char** argv) {
 		("input-files", boost::program_options::value< std::vector<std::string> >(), "input file(s)")
 		("resolution", boost::program_options::value<float>(), "resolution to output (default is 1.0)")
 		("output", boost::program_options::value<std::string>(), "set output name")
-		("maxOutputWidth", boost::program_options::value<int>(), "set maximum output image width")
-		("maxOutputHeight", boost::program_options::value<int>(), "set maximum output image height")
-		("failOnTooBig", boost::program_options::value<bool>(), "fail build if the maxOutputWidth and maxOutputHeight will be exceeded")
+		("output-width", boost::program_options::value<int>(), "set maximum output image width")
+		("output-height", boost::program_options::value<int>(), "set maximum output image height")
+		("fail-if-too-big", boost::program_options::value<bool>(), "fail build if the output-width and output-height will be exceeded")
 		("rotation-enabled", boost::program_options::value<bool>(), "enable rotation on subimages")
 		("trim-enabled", boost::program_options::value<bool>(), "enable trim on subimages")
 		("output-pow2", boost::program_options::value<bool>(), "final output image should always be a power of 2")
@@ -85,18 +85,18 @@ Options ParseArgv(int argc, char** argv) {
 		std::cout << "options.outputName " << options.outputName << std::endl;
 	}
 
-	if ( vm.count("maxOutputWidth") ) {
-		options.maxOutputWidth = vm["maxOutputWidth"].as<int>();
+	if ( vm.count("output-width") ) {
+		options.maxOutputWidth = vm["output-width"].as<int>();
 		std::cout << "options.maxOutputWidth " << options.maxOutputWidth << std::endl;
 	}
 
-	if ( vm.count("maxOutputHeight") ) {
-		options.maxOutputHeight = vm["maxOutputHeight"].as<int>();
+	if ( vm.count("output-height") ) {
+		options.maxOutputHeight = vm["output-height"].as<int>();
 		std::cout << "options.maxOutputHeight " << options.maxOutputHeight << std::endl;
 	}
 
-	if ( vm.count("failOnTooBig") ) {
-		options.failOnTooBig = vm["failOnTooBig"].as<bool>();
+	if ( vm.count("fail-if-too-big") ) {
+		options.failOnTooBig = vm["fail-if-too-big"].as<bool>();
 		std::cout << "options.failOnTooBig " << options.failOnTooBig << std::endl;
 	}
 	

@@ -52,7 +52,7 @@ void MaxRectsBinPack::Init(int width, int height)
 	freeRectangles.push_back(n);
 }
 
-AtlasRect MaxRectsBinPack::Insert(int width, int height, FreeRectChoiceHeuristic method)
+AtlasRect MaxRectsBinPack::Insert(int width, int height, FreeRectChoiceHeuristic method, bool rotationEnabled)
 {
 	AtlasRect newNode;
 	// Unused in this function. We don't need to know the score after finding the position.
@@ -60,11 +60,11 @@ AtlasRect MaxRectsBinPack::Insert(int width, int height, FreeRectChoiceHeuristic
 	int score2 = std::numeric_limits<int>::max();
 	switch(method)
 	{
-		case RectBestShortSideFit: newNode = FindPositionForNewNodeBestShortSideFit(width, height, score1, score2); break;
-		case RectBottomLeftRule: newNode = FindPositionForNewNodeBottomLeft(width, height, score1, score2); break;
-		case RectContactPointRule: newNode = FindPositionForNewNodeContactPoint(width, height, score1); break;
-		case RectBestLongSideFit: newNode = FindPositionForNewNodeBestLongSideFit(width, height, score2, score1); break;
-		case RectBestAreaFit: newNode = FindPositionForNewNodeBestAreaFit(width, height, score1, score2); break;
+		case RectBestShortSideFit: newNode = FindPositionForNewNodeBestShortSideFit(width, height, score1, score2, rotationEnabled); break;
+		case RectBottomLeftRule: newNode = FindPositionForNewNodeBottomLeft(width, height, score1, score2, rotationEnabled); break;
+		case RectContactPointRule: newNode = FindPositionForNewNodeContactPoint(width, height, score1, rotationEnabled); break;
+		case RectBestLongSideFit: newNode = FindPositionForNewNodeBestLongSideFit(width, height, score2, score1, rotationEnabled); break;
+		case RectBestAreaFit: newNode = FindPositionForNewNodeBestAreaFit(width, height, score1, score2, rotationEnabled); break;
 	}
 		
 	if (newNode.h == 0)
@@ -140,20 +140,20 @@ void MaxRectsBinPack::PlaceRect(const AtlasRect &node)
 	//		dst.push_back(bestNode); ///\todo Refactor so that this compiles.
 }
 
-AtlasRect MaxRectsBinPack::ScoreRect(int width, int height, FreeRectChoiceHeuristic method, int &score1, int &score2) const
+AtlasRect MaxRectsBinPack::ScoreRect(int width, int height, FreeRectChoiceHeuristic method, int &score1, int &score2, bool rotationEnabled) const
 {
 	AtlasRect newNode;
 	score1 = std::numeric_limits<int>::max();
 	score2 = std::numeric_limits<int>::max();
 	switch(method)
 	{
-	case RectBestShortSideFit: newNode = FindPositionForNewNodeBestShortSideFit(width, height, score1, score2); break;
-	case RectBottomLeftRule: newNode = FindPositionForNewNodeBottomLeft(width, height, score1, score2); break;
-	case RectContactPointRule: newNode = FindPositionForNewNodeContactPoint(width, height, score1); 
+	case RectBestShortSideFit: newNode = FindPositionForNewNodeBestShortSideFit(width, height, score1, score2, rotationEnabled); break;
+	case RectBottomLeftRule: newNode = FindPositionForNewNodeBottomLeft(width, height, score1, score2, rotationEnabled); break;
+	case RectContactPointRule: newNode = FindPositionForNewNodeContactPoint(width, height, score1, rotationEnabled); 
 		score1 = -score1; // Reverse since we are minimizing, but for contact point score bigger is better.
 		break;
-	case RectBestLongSideFit: newNode = FindPositionForNewNodeBestLongSideFit(width, height, score2, score1); break;
-	case RectBestAreaFit: newNode = FindPositionForNewNodeBestAreaFit(width, height, score1, score2); break;
+	case RectBestLongSideFit: newNode = FindPositionForNewNodeBestLongSideFit(width, height, score2, score1, rotationEnabled); break;
+	case RectBestAreaFit: newNode = FindPositionForNewNodeBestAreaFit(width, height, score1, score2, rotationEnabled); break;
 	}
 
 	// Cannot fit the current rectangle.
@@ -176,7 +176,7 @@ float MaxRectsBinPack::Occupancy() const
 	return (float)usedSurfaceArea / (binWidth * binHeight);
 }
 
-AtlasRect MaxRectsBinPack::FindPositionForNewNodeBottomLeft(int width, int height, int &bestY, int &bestX) const
+AtlasRect MaxRectsBinPack::FindPositionForNewNodeBottomLeft(int width, int height, int &bestY, int &bestX, bool rotationEnabled) const
 {
 	AtlasRect bestNode;
 	memset(&bestNode, 0, sizeof(AtlasRect));
@@ -200,7 +200,7 @@ AtlasRect MaxRectsBinPack::FindPositionForNewNodeBottomLeft(int width, int heigh
 				bestX = freeRectangles[i].x;
 			}
 		}
-		if (freeRectangles[i].w >= height && freeRectangles[i].h >= width)
+		if (rotationEnabled && freeRectangles[i].w >= height && freeRectangles[i].h >= width)
 		{
 			int topSideY = freeRectangles[i].y + width;
 			if (topSideY < bestY || (topSideY == bestY && freeRectangles[i].x < bestX))
@@ -218,7 +218,7 @@ AtlasRect MaxRectsBinPack::FindPositionForNewNodeBottomLeft(int width, int heigh
 }
 
 AtlasRect MaxRectsBinPack::FindPositionForNewNodeBestShortSideFit(int width, int height, 
-	int &bestShortSideFit, int &bestLongSideFit) const
+	int &bestShortSideFit, int &bestLongSideFit, bool rotationEnabled) const
 {
 	AtlasRect bestNode;
 	memset(&bestNode, 0, sizeof(AtlasRect));
@@ -247,7 +247,7 @@ AtlasRect MaxRectsBinPack::FindPositionForNewNodeBestShortSideFit(int width, int
 			}
 		}
 
-		if (freeRectangles[i].w >= height && freeRectangles[i].h >= width)
+		if (rotationEnabled && freeRectangles[i].w >= height && freeRectangles[i].h >= width)
 		{
 			int flippedLeftoverHoriz = abs(freeRectangles[i].w - height);
 			int flippedLeftoverVert = abs(freeRectangles[i].h - width);
@@ -269,7 +269,7 @@ AtlasRect MaxRectsBinPack::FindPositionForNewNodeBestShortSideFit(int width, int
 }
 
 AtlasRect MaxRectsBinPack::FindPositionForNewNodeBestLongSideFit(int width, int height, 
-	int &bestShortSideFit, int &bestLongSideFit) const
+	int &bestShortSideFit, int &bestLongSideFit, bool rotationEnabled) const
 {
 	AtlasRect bestNode;
 	memset(&bestNode, 0, sizeof(AtlasRect));
@@ -298,7 +298,7 @@ AtlasRect MaxRectsBinPack::FindPositionForNewNodeBestLongSideFit(int width, int 
 			}
 		}
 
-		if (freeRectangles[i].w >= height && freeRectangles[i].h >= width)
+		if (rotationEnabled && freeRectangles[i].w >= height && freeRectangles[i].h >= width)
 		{
 			int leftoverHoriz = abs(freeRectangles[i].w - height);
 			int leftoverVert = abs(freeRectangles[i].h - width);
@@ -320,7 +320,7 @@ AtlasRect MaxRectsBinPack::FindPositionForNewNodeBestLongSideFit(int width, int 
 }
 
 AtlasRect MaxRectsBinPack::FindPositionForNewNodeBestAreaFit(int width, int height, 
-	int &bestAreaFit, int &bestShortSideFit) const
+	int &bestAreaFit, int &bestShortSideFit, bool rotationEnabled) const
 {
 	AtlasRect bestNode;
 	memset(&bestNode, 0, sizeof(AtlasRect));
@@ -350,7 +350,7 @@ AtlasRect MaxRectsBinPack::FindPositionForNewNodeBestAreaFit(int width, int heig
 			}
 		}
 
-		if (freeRectangles[i].w >= height && freeRectangles[i].h >= width)
+		if (rotationEnabled && freeRectangles[i].w >= height && freeRectangles[i].h >= width)
 		{
 			int leftoverHoriz = abs(freeRectangles[i].w - height);
 			int leftoverVert = abs(freeRectangles[i].h - width);
@@ -397,7 +397,7 @@ int MaxRectsBinPack::ContactPointScoreNode(int x, int y, int width, int height) 
 	return score;
 }
 
-AtlasRect MaxRectsBinPack::FindPositionForNewNodeContactPoint(int width, int height, int &bestContactScore) const
+AtlasRect MaxRectsBinPack::FindPositionForNewNodeContactPoint(int width, int height, int &bestContactScore, bool rotationEnabled) const
 {
 	AtlasRect bestNode;
 	memset(&bestNode, 0, sizeof(AtlasRect));
@@ -419,7 +419,7 @@ AtlasRect MaxRectsBinPack::FindPositionForNewNodeContactPoint(int width, int hei
 				bestContactScore = score;
 			}
 		}
-		if (freeRectangles[i].w >= height && freeRectangles[i].h >= width)
+		if (rotationEnabled && freeRectangles[i].w >= height && freeRectangles[i].h >= width)
 		{
 			int score = ContactPointScoreNode(freeRectangles[i].x, freeRectangles[i].y, height, width);
 			if (score > bestContactScore)

@@ -27,6 +27,8 @@ InputImage::InputImage( const Options& options, const std::string& filename )
 	, _isTrimmed( false )
 	, _resolution( 1.0f )
 	, _imageData( NULL )
+	, _baX( 0 )
+	, _baY( 0 )
 {
 	_imageData = ImageData::createFromFile(filename);
 	_originalWidth = _imageData->Width();
@@ -36,16 +38,15 @@ InputImage::InputImage( const Options& options, const std::string& filename )
 
 
 void InputImage::Prep() {
-	// trim all input images if enabled
-	if ( _options.trimEnabled ) {
-		_Trim();
-	}
 	_AlignBoundary();
 	if ( _options.resolution != 1.0f ) {
 		_imageData = ImageData::createNewResolution(_imageData, _options.resolution);
-		_trimmedRect.Scale( _options.resolution );
 		_originalWidth = floorf( _originalWidth * _options.resolution );
 		_originalHeight = floorf( _originalHeight * _options.resolution );
+	}
+	// trim all input images if enabled
+	if ( _options.trimEnabled ) {
+		_Trim();
 	}
 }
 
@@ -53,6 +54,8 @@ void InputImage::Prep() {
 void InputImage::_Trim() {
 	_isTrimmed = true;
 	_trimmedRect = _imageData->Trim();
+	_trimmedRect.x -= _baX;
+	_trimmedRect.y -= _baY;
 }
 
 
@@ -61,15 +64,21 @@ void InputImage::_AlignBoundary() {
 	
 	// pad out to width / height of multiple of _options.boundaryAlignment
 	if (_options.boundaryAlignment > 0) {
-		// number of pixels we are over the boundary alignment value
+		// // number of pixels we are over the boundary alignment value
+		// const auto widthCorrection = CalculateBoundaryAlignment(_imageData->Width(), _options.boundaryAlignment);
+		// left = widthCorrection.first;
+		// right = widthCorrection.second;
+		// const auto heightCorrection = CalculateBoundaryAlignment(_imageData->Height(), _options.boundaryAlignment);
+		// top = heightCorrection.first;
+		// bottom = heightCorrection.second;
 		const auto widthCorrection = CalculateBoundaryAlignment(_imageData->Width(), _options.boundaryAlignment);
-		left = widthCorrection.first;
-		right = widthCorrection.second;
+		right = widthCorrection.first + widthCorrection.second;
 		const auto heightCorrection = CalculateBoundaryAlignment(_imageData->Height(), _options.boundaryAlignment);
-		top = heightCorrection.first;
-		bottom = heightCorrection.second;
+		bottom = heightCorrection.first + heightCorrection.second;
 	}
 	if ( left > 0 || right > 0 || top > 0 || bottom > 0 ) {
 		_imageData->AddPadding( left, right, top, bottom );
+		_baX = left;
+		_baY = top;
 	}
 }

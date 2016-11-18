@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 
-const float defaultResolutions[] = { 0.25f, 0.5f, 1.0f };
-const int defaultResolutionsCount = 3;
 
 struct Options {
 	Options() {
