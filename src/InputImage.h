@@ -16,19 +16,22 @@ class InputImage {
 	bool _isTrimmed;
 	float _resolution;
 	ImageData* _imageData;
-	int _baX, _baY;
-	
+
 	void _Trim();
-	void _AlignBoundary();
 public:
 	InputImage( const Options& options, const std::string& filename );
 	
 	void Prep();
 
+	std::pair<int, int> CalculatePadding() const;
+
 	inline ImageData* Data() const { return _imageData; }
 
 	inline int OriginalWidth() const { return _originalWidth; }
 	inline int OriginalHeight() const { return _originalHeight; }
+	int Area( bool includePadding ) const;
+	int Width( bool includePadding ) const;
+	int Height( bool includePadding ) const;
 	inline const AtlasRect& TrimmedRect() const { return _trimmedRect; }
 	inline bool IsTrimmed() const { return _isTrimmed; }
 

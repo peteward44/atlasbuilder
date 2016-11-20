@@ -39,16 +39,11 @@ bool ExpandSize( const Options& options, int& width, int& height ) {
 	}
 }
 
-// int GetPadding( const Options& options, int coord ) {
-	// return coord == 0 ? 0 : options.padding;
-// }
 
 OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& options ) {
-	const int padding = options.padding;
-	
 	// sort by given area (width * height)
 	std::sort( inputImageList.begin(), inputImageList.end(), [&] ( const InputImage* lhs, const InputImage* rhs ) {
-		return lhs->Data()->Area( padding ) > rhs->Data()->Area( padding );
+		return lhs->Area( true ) > rhs->Area( true );
 	} );
 	
 	// Estimate how big the new image should be, by calculating total area required and finding nearest power of 2
@@ -56,9 +51,9 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 	int biggestHeight = 0;
 	int totalArea = 0;
 	for ( const InputImage* input : inputImageList ) {
-		totalArea += input->Data()->Area( padding );
-		const int w = input->Data()->Width() + padding;
-		const int h = input->Data()->Height() + padding;
+		totalArea += input->Area( true );
+		const int w = input->Width( true );
+		const int h = input->Height( true );
 		if ( biggestWidth < w ) {
 			biggestWidth = w;
 		}
@@ -89,8 +84,8 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 
 		// Put the images into the bin packer, using the MaxRects algorithm
 		for ( const InputImage* input : inputImageList ) {
-		// TODO: detect if inserting image fails due to not enough space and handle
-			AtlasRect insertedRect = binPacker.Insert( input->Data()->Width() + padding, input->Data()->Height() + padding, rbp::MaxRectsBinPack::RectBestShortSideFit, options.rotationEnabled );
+			// TODO: detect if inserting image fails due to not enough space and handle
+			AtlasRect insertedRect = binPacker.Insert( input->Width( true ), input->Height( true ), rbp::MaxRectsBinPack::RectBestShortSideFit, options.rotationEnabled );
 			if ( insertedRect.w == 0 && insertedRect.h == 0 ) {
 				// insertion failed - image not big enough. Start again with a larger starting image
 				// TODO: account for max output size limit and non-pow2 sizes
@@ -101,8 +96,9 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 				break;
 			}
 			std::cout << input->Name() << " pos " << insertedRect.x << "x" << insertedRect.y << " w=" << insertedRect.w << " h=" << insertedRect.h << std::endl;
-			const bool isRotated = insertedRect.w != input->Data()->Width() + padding;
-			outputImage->AddSubImage( input, isRotated, insertedRect.x + padding, insertedRect.y + padding );
+			const bool isRotated = insertedRect.w != input->Width( true );
+			const auto padding = input->CalculatePadding();
+			outputImage->AddSubImage( input, isRotated, insertedRect.x + ( isRotated ? padding.second : padding.first ), insertedRect.y + ( isRotated ? padding.first : padding.second) );
 		}
 	} while ( failed );
 	return outputImage;

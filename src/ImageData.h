@@ -27,7 +27,7 @@ public:
 	
 	AtlasRect Trim();
 
-	void AddPadding(int left, int right, int top, int bottom);
+//	void AddPadding(int left, int right, int top, int bottom);
 	void InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated);
 
 	void Save(const std::string& filename);

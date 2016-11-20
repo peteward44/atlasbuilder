@@ -115,7 +115,7 @@ ImageData* ImageData::createBlank(int width, int height) {
 	return new ImageData( width, height );
 }
 
-void ImageData::AddPadding(int left, int right, int top, int bottom) {
+// void ImageData::AddPadding(int left, int right, int top, int bottom) {
 	// // surrounds image with transparent pixels, used for boundary alignment
 	// // probably more efficient way of doing this but do it this way for now as it works seamlessly with resolution downsampling
 	// std::cout << "Adding padding l=" << left << " r=" << right << " t=" << top << " b=" << bottom << std::endl;
@@ -123,7 +123,7 @@ void ImageData::AddPadding(int left, int right, int top, int bottom) {
 	// _image = image.insert( _image, left, top );
 	// _width = _width + left + right;
 	// _height = _height + top + bottom;
-}
+// }
 
 void ImageData::InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated) {
 	// inserts given sub image in the rect x,y position

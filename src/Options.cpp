@@ -36,6 +36,7 @@ Options ParseArgv(int argc, const char** argv) {
 		("output-pow2", boost::program_options::value<bool>(), "final output image should always be a power of 2")
 		("padding", boost::program_options::value<int>(), "padding to insert between each sub image in atlas")
 		("boundary-alignment", boost::program_options::value<int>(), "boundary-alignment to align each sub image in atlas")
+		("scale-manifest-values", boost::program_options::value<bool>(), "if using a resolution other than 1, use scaled x,y,w,h values in the manifest")
 	;
 
 	boost::program_options::variables_map vm;
@@ -123,6 +124,11 @@ Options ParseArgv(int argc, const char** argv) {
 	if ( vm.count("boundary-alignment") ) {
 		options.boundaryAlignment = vm["boundary-alignment"].as<int>();
 		std::cout << "options.boundaryAlignment " << options.boundaryAlignment << std::endl;
+	}
+	
+	if ( vm.count("scale-manifest-values") ) {
+		options.scaleManifestValues = vm["scale-manifest-values"].as<bool>();
+		std::cout << "options.scaleManifestValues " << options.scaleManifestValues << std::endl;
 	}
 
 	if ( vm.count( "input-files" ) ) {

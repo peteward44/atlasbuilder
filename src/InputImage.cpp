@@ -5,17 +5,13 @@
 #include <list>
 #include <cmath>
 
-std::pair< int, int > CalculateBoundaryAlignment( int width, int alignment ) {
+int CalculateBoundaryAlignment( int width, int alignment ) {
 	// number of pixels we are over the boundary alignment value
 	const int overrun = width % alignment;
-	if (overrun > 0) {
-		// number of pixels we need to add to both left / right to make it right
-		const int additional = alignment - overrun;
-		const int left = (int)floorf((float)additional / 2.0f);
-		const int right = additional - left;
-		return std::make_pair(left, right);
+	if ( overrun > 0 ) {
+		return alignment - overrun;
 	}
-	return std::make_pair(0, 0);
+	return 0;
 }
 
 
@@ -27,8 +23,6 @@ InputImage::InputImage( const Options& options, const std::string& filename )
 	, _isTrimmed( false )
 	, _resolution( 1.0f )
 	, _imageData( NULL )
-	, _baX( 0 )
-	, _baY( 0 )
 {
 	_imageData = ImageData::createFromFile(filename);
 	_originalWidth = _imageData->Width();
@@ -38,47 +32,61 @@ InputImage::InputImage( const Options& options, const std::string& filename )
 
 
 void InputImage::Prep() {
-	_AlignBoundary();
-	if ( _options.resolution != 1.0f ) {
-		_imageData = ImageData::createNewResolution(_imageData, _options.resolution);
-		_originalWidth = floorf( _originalWidth * _options.resolution );
-		_originalHeight = floorf( _originalHeight * _options.resolution );
-	}
-	// trim all input images if enabled
-	if ( _options.trimEnabled ) {
+	if ( !_options.scaleManifestValues && _options.trimEnabled ) {
 		_Trim();
 	}
+	if ( _options.resolution != 1.0f ) {
+		_imageData = ImageData::createNewResolution(_imageData, _options.resolution);
+		if ( _options.scaleManifestValues ) {
+			_originalWidth = floorf( _originalWidth * _options.resolution );
+			_originalHeight = floorf( _originalHeight * _options.resolution );
+		}
+	}
+	if ( _options.scaleManifestValues && _options.trimEnabled ) {
+		_Trim();
+	}
+}
+
+
+std::pair<int, int> InputImage::CalculatePadding() const {
+	int w = 0, h = 0;
+	if ( _options.padding > 0 ) {
+		w = _options.padding;
+		h = _options.padding;
+	}
+	// pad out to width / height of multiple of _options.boundaryAlignment
+	if ( _options.boundaryAlignment > 0 ) {
+		const int extraWidth = CalculateBoundaryAlignment(_imageData->Width(), _options.boundaryAlignment);
+		const int extraHeight = CalculateBoundaryAlignment(_imageData->Height(), _options.boundaryAlignment);
+		if ( extraWidth > w ) {
+			w = extraWidth;
+		}
+		if ( extraHeight > h ) {
+			h = extraHeight;
+		}
+	}
+	return std::make_pair( w, h );
+}
+
+
+int InputImage::Area( bool includePadding ) const {
+	return Width( includePadding ) * Height( includePadding );
+}
+
+
+int InputImage::Width( bool includePadding ) const {
+	const auto padding = CalculatePadding();
+	return _imageData->Width() + ( includePadding ? padding.first : 0 );
+}
+
+
+int InputImage::Height( bool includePadding ) const {
+	const auto padding = CalculatePadding();
+	return _imageData->Height() + ( includePadding ? padding.second : 0 );
 }
 
 
 void InputImage::_Trim() {
 	_isTrimmed = true;
 	_trimmedRect = _imageData->Trim();
-	_trimmedRect.x -= _baX;
-	_trimmedRect.y -= _baY;
-}
-
-
-void InputImage::_AlignBoundary() {
-	int left = 0, right = 0, top = 0, bottom = 0;
-	
-	// pad out to width / height of multiple of _options.boundaryAlignment
-	if (_options.boundaryAlignment > 0) {
-		// // number of pixels we are over the boundary alignment value
-		// const auto widthCorrection = CalculateBoundaryAlignment(_imageData->Width(), _options.boundaryAlignment);
-		// left = widthCorrection.first;
-		// right = widthCorrection.second;
-		// const auto heightCorrection = CalculateBoundaryAlignment(_imageData->Height(), _options.boundaryAlignment);
-		// top = heightCorrection.first;
-		// bottom = heightCorrection.second;
-		const auto widthCorrection = CalculateBoundaryAlignment(_imageData->Width(), _options.boundaryAlignment);
-		right = widthCorrection.first + widthCorrection.second;
-		const auto heightCorrection = CalculateBoundaryAlignment(_imageData->Height(), _options.boundaryAlignment);
-		bottom = heightCorrection.first + heightCorrection.second;
-	}
-	if ( left > 0 || right > 0 || top > 0 || bottom > 0 ) {
-		_imageData->AddPadding( left, right, top, bottom );
-		_baX = left;
-		_baY = top;
-	}
 }
