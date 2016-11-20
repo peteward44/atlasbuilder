@@ -5,8 +5,10 @@
 /*.sdf
 /*.opensdf
 /*.db
+/*.deb
 /atlasbuilder/x64
 /atlasbuilder/Debug
 /atlasbuilder.exe
 /target/atlasbuilder.exe
 /target/test.exe
+/target-linux
