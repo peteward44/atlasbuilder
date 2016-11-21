@@ -37,6 +37,7 @@ Options ParseArgv(int argc, const char** argv) {
 		("padding", boost::program_options::value<int>(), "padding to insert between each sub image in atlas")
 		("boundary-alignment", boost::program_options::value<int>(), "boundary-alignment to align each sub image in atlas")
 		("scale-manifest-values", boost::program_options::value<bool>(), "if using a resolution other than 1, use scaled x,y,w,h values in the manifest")
+		("align-on-resize", boost::program_options::value<bool>(), "if using a resolution other than 1, will perform boundary alignment before scaling to prevent juddering")
 	;
 
 	boost::program_options::variables_map vm;
@@ -130,7 +131,12 @@ Options ParseArgv(int argc, const char** argv) {
 		options.scaleManifestValues = vm["scale-manifest-values"].as<bool>();
 		std::cout << "options.scaleManifestValues " << options.scaleManifestValues << std::endl;
 	}
-
+	
+	if ( vm.count("align-on-resize") ) {
+		options.alignOnResize = vm["align-on-resize"].as<bool>();
+		std::cout << "options.alignOnResize " << options.alignOnResize << std::endl;
+	}
+	
 	if ( vm.count( "input-files" ) ) {
 		auto files = vm["input-files"].as< std::vector<std::string> >();
 		for( std::string file : files ) {

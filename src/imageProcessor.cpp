@@ -97,8 +97,7 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 			}
 			std::cout << input->Name() << " pos " << insertedRect.x << "x" << insertedRect.y << " w=" << insertedRect.w << " h=" << insertedRect.h << std::endl;
 			const bool isRotated = insertedRect.w != input->Width( true );
-			const auto padding = input->CalculatePadding();
-			outputImage->AddSubImage( input, isRotated, insertedRect.x + ( isRotated ? padding.second : padding.first ), insertedRect.y + ( isRotated ? padding.first : padding.second) );
+			outputImage->AddSubImage( input, isRotated, insertedRect.x, insertedRect.y );
 		}
 	} while ( failed );
 	return outputImage;

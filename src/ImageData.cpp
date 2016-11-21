@@ -57,7 +57,7 @@ ImageData::ImageData(int width, int height) {
 }
 
 ImageData::ImageData(ImageData* original, float resolution) {
-	_image = original->_image.resize( resolution );
+	_image = original->_image.resize( resolution/*, VImage::option()->set( "kernel", VIPS_KERNEL_LINEAR )*/ );
 	_width = _image.width();
 	_height = _image.height();
 }
@@ -140,26 +140,61 @@ void ImageData::Save(const std::string& filename) {
 	_image.write_to_file( filename.c_str() );
 }
 
-AtlasRect ImageData::Trim() {
+AtlasRect ImageData::Trim( bool commit, bool alignBoundary ) {
 	// adjusted from https://github.com/jcupitt/libvips/issues/233
 	// sum rows and columns, then search for the first non-zero sum in each
-	VImage mask = _image.extract_band( 3 ); // extract alpha
+	VImage mask = _image.extract_band( 3 ); // extract alpha only
 	VImage rows;
 	VImage columns = mask.profile( &rows );
-	const int top = columns.min();
-	const int left = rows.min();
+	int top = columns.min();
+	int left = rows.min();
 	VImage flippedMask = mask.flip( VIPS_DIRECTION_HORIZONTAL ).flip( VIPS_DIRECTION_VERTICAL );
 	VImage frows;
 	VImage fcolumns = flippedMask.profile( &frows );
-	const int bottom = fcolumns.min();
-	const int right = frows.min();
+	int bottom = fcolumns.min();
+	int right = frows.min();
 //	std::cout << "left " << left << " right " << right << std::endl;
 //	std::cout << "top " << top << " bottom " << bottom << std::endl;
+	if ( alignBoundary ) {
+		const int boundary = 8;
+		int leftover = top % boundary;
+		if ( leftover > 0 ) {
+			top -= leftover;
+			if ( top < 0 ) {
+				top = 0;
+			}
+		}
+		leftover = left % boundary;
+		if ( leftover > 0 ) {
+			left -= leftover;
+			if ( left < 0 ) {
+				left = 0;
+			}
+		}
+		const int absright = _width - right;
+		leftover = absright % boundary;
+		if ( leftover > 0 ) {
+			right -= boundary - leftover;
+			if ( right < 0 ) {
+				right = 0;
+			}
+		}
+		const int absbottom = _height - bottom;
+		leftover = absbottom % boundary;
+		if ( leftover > 0 ) {
+			bottom -= boundary - leftover;
+			if ( bottom < 0 ) {
+				bottom = 0;
+			}
+		}
+	}
 	const int width = _width - right - left;
 	const int height = _height - bottom - top;
-	_image = _image.extract_area( left, top, width, height );
-	_width = width;
-	_height = height;
+	if ( commit ) {
+		_image = _image.extract_area( left, top, width, height );
+		_width = width;
+		_height = height;
+	}
 	return AtlasRect( left, top, width, height );
 }
 

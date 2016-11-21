@@ -16,8 +16,6 @@ class InputImage {
 	bool _isTrimmed;
 	float _resolution;
 	ImageData* _imageData;
-
-	void _Trim();
 public:
 	InputImage( const Options& options, const std::string& filename );
 	

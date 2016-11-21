@@ -9,12 +9,13 @@
 class InputImage;
 
 struct SubImage {
-	inline SubImage( const InputImage* input_, bool rotated_, const AtlasRect& rect_ )
-		: input( input_ ), rotated( rotated_ ), rect( rect_ )
+	inline SubImage( const InputImage* input_, bool rotated_, const AtlasRect& insertionRect_, const AtlasRect& manifestRect_ )
+		: input( input_ ), rotated( rotated_ ), insertionRect( insertionRect_ ), manifestRect( manifestRect_ )
 	{}
 	const InputImage* input;
 	bool rotated;
-	AtlasRect rect;
+	AtlasRect insertionRect; // Rect that will be passed to the binpacker to insert into final image (includes padding / boundary alignment)
+	AtlasRect manifestRect; // Rect that is written to the manifest (does not include padding / alignment)
 };
 
 

@@ -5,6 +5,20 @@
 #include <cmath>
 
 
+inline int CalculateBoundaryAlignment( int width, int alignment, int padding ) {
+	int pixelsRequiredToAlign = 0;
+	// number of pixels we are over the boundary alignment value
+	const int overrun = width % alignment;
+	if ( overrun > 0 ) {
+		pixelsRequiredToAlign = alignment - overrun;
+	}
+	while ( pixelsRequiredToAlign < padding ) {
+		pixelsRequiredToAlign += alignment;
+	}
+	return pixelsRequiredToAlign;
+}
+
+
 struct AtlasRect {
 	AtlasRect( int x_ = 0, int y_ = 0, int w_ = 0, int h_ = 0 )
 		: x( x_ ), y( y_ ), w( w_ ), h( h_ )

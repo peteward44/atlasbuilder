@@ -15,22 +15,23 @@ OutputImage::OutputImage(const Options& options, int w, int h)
 
 void OutputImage::AddSubImage( const InputImage* input, bool isRotated, int x, int y ) {
 	// copy image data into atlas canvas, and add sub image to list
-	AtlasRect rect( x, y, input->Data()->Width(), input->Data()->Height() );
-	_subImages.push_back( SubImage( input, isRotated, rect ) );
+	AtlasRect insertionRect( x, y, input->Width( true ), input->Height( true ) );
+	AtlasRect manifestRect( x, y, input->Data()->Width(), input->Data()->Height() );
+	_subImages.push_back( SubImage( input, isRotated, insertionRect, manifestRect ) );
 	// update actual width/height
 	if ( !isRotated ) {
-		if ( _actualWidth < rect.x + rect.w ) {
-			_actualWidth = rect.x + rect.w;
+		if ( _actualWidth < insertionRect.x + insertionRect.w ) {
+			_actualWidth = insertionRect.x + insertionRect.w;
 		}
-		if ( _actualHeight < rect.y + rect.h ) {
-			_actualHeight = rect.y + rect.h;
+		if ( _actualHeight < insertionRect.y + insertionRect.h ) {
+			_actualHeight = insertionRect.y + insertionRect.h;
 		}
 	} else {
-		if ( _actualWidth < rect.x + rect.h ) {
-			_actualWidth = rect.x + rect.h;
+		if ( _actualWidth < insertionRect.x + insertionRect.h ) {
+			_actualWidth = insertionRect.x + insertionRect.h;
 		}
-		if ( _actualHeight < rect.y + rect.w ) {
-			_actualHeight = rect.y + rect.w;
+		if ( _actualHeight < insertionRect.y + insertionRect.w ) {
+			_actualHeight = insertionRect.y + insertionRect.w;
 		}
 	}	
 }
@@ -41,8 +42,8 @@ void OutputImage::Finalise( const std::string& filename ) {
 	height = _h;
 	ImageData* data = ImageData::createBlank(width, height);
 	std::for_each(_subImages.begin(), _subImages.end(), [&](const SubImage& subImage) {
-		std::cout << "Inserting sub image " << subImage.input->Name() << " at " << subImage.rect.x << "x" << subImage.rect.y << " [" << subImage.rect.w << "x" << subImage.rect.h << "]" << std::endl;
-		data->InsertSubImage(subImage.input->Data(), subImage.rect, subImage.rotated);
+		std::cout << "Inserting sub image " << subImage.input->Name() << " at " << subImage.insertionRect.x << "x" << subImage.insertionRect.y << " [" << subImage.insertionRect.w << "x" << subImage.insertionRect.h << "]" << std::endl;
+		data->InsertSubImage(subImage.input->Data(), subImage.insertionRect, subImage.rotated);
 	});
 	data->Save(filename);
 	delete data;

@@ -35,7 +35,7 @@ void WriteManifest( const OutputImage* output, std::ostream& ostr, const std::st
 	std::for_each( subImages.begin(), subImages.end(), [&] ( const SubImage& subImage ) {
 		ostr << "\"" << subImage.input->Name() << "\":{";
 		ostr << "\"frame\":";
-		RectToJSON(subImage.rect, ostr);
+		RectToJSON(subImage.manifestRect, ostr);
 		ostr << ",";
 		ostr << "\"rotated\":" << BoolName( subImage.rotated ) << ",";
 		ostr << "\"trimmed\":" << BoolName( subImage.input->IsTrimmed() ) << ",";
