@@ -14,12 +14,12 @@ struct Options {
 		trimEnabled = true;
 		rotationEnabled = true;
 		finalImageIsPow2 = false;
-		failOnTooBig = true;
-		padding = 6;
-		boundaryAlignment = 16;
+		failOnTooBig = false;
+		padding = 2;
+		boundaryAlignment = 0;
 		resolution = 1.0f;
 		scaleManifestValues = true;
-		trimBoundary = 4;
+		trimBoundary = 0;
 	}
 
 	bool valid;

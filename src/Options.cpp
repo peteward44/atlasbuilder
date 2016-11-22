@@ -8,6 +8,8 @@
 #include "boost/program_options.hpp"
 #include "boost/algorithm/string.hpp"
 
+const std::string VERSION = "1.0.0";
+
 // Additional command line parser which interprets '@something' as a
 // option "config-file" with the value "something"
 std::pair<std::string, std::string> at_option_parser( const std::string& s ) {
@@ -24,6 +26,7 @@ Options ParseArgv(int argc, const char** argv) {
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
 		("help", "produce help message")
+		("version", "display version")
 		("response-file", boost::program_options::value<std::string>(), "read in command line options from file (separated by newlines). Can be specified with '@name', too")
 		("input-files", boost::program_options::value< std::vector<std::string> >(), "input file(s)")
 		("resolution", boost::program_options::value<float>(), "resolution to output (default is 1.0)")
@@ -33,7 +36,7 @@ Options ParseArgv(int argc, const char** argv) {
 		("fail-if-too-big", boost::program_options::value<bool>(), "fail build if the output-width and output-height will be exceeded")
 		("rotation-enabled", boost::program_options::value<bool>(), "enable rotation on subimages")
 		("trim-enabled", boost::program_options::value<bool>(), "enable trim on subimages")
-		("output-pow2", boost::program_options::value<bool>(), "final output image should always be a power of 2")
+//		("output-pow2", boost::program_options::value<bool>(), "final output image should always be a power of 2")
 		("padding", boost::program_options::value<int>(), "padding to insert between each sub image in atlas")
 		("boundary-alignment", boost::program_options::value<int>(), "boundary-alignment to align each sub image in atlas")
 		("scale-manifest-values", boost::program_options::value<bool>(), "if using a resolution other than 1, use scaled x,y,w,h values in the manifest")
@@ -51,6 +54,11 @@ Options ParseArgv(int argc, const char** argv) {
 
 	if ( vm.count("help") ) {
 		std::cout << desc << std::endl;
+		return Options();
+	}
+
+	if ( vm.count("version") ) {
+		std::cout << VERSION << std::endl;
 		return Options();
 	}
 
