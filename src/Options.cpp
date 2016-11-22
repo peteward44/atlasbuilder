@@ -10,6 +10,13 @@
 
 const std::string VERSION = "1.0.0";
 
+void PrintHelp( const boost::program_options::options_description& desc ) {
+	std::cout << "usage: atlasbuilder [options] <input files...>" << std::endl;
+ 	std::cout << "example: atlasbuilder --output=myoutputname input1.png input2.png" << std::endl;
+	std::cout << std::endl;
+	std::cout << desc << std::endl;
+}
+
 // Additional command line parser which interprets '@something' as a
 // option "config-file" with the value "something"
 std::pair<std::string, std::string> at_option_parser( const std::string& s ) {
@@ -53,7 +60,7 @@ Options ParseArgv(int argc, const char** argv) {
 	boost::program_options::notify( vm );    
 
 	if ( vm.count("help") ) {
-		std::cout << desc << std::endl;
+		PrintHelp( desc );
 		return Options();
 	}
 
@@ -164,8 +171,7 @@ Options ParseArgv(int argc, const char** argv) {
 	
 	if ( options.inputFiles.empty() ) {
 		std::cerr << "No input files specified on command line" << std::endl;
-		std::cout << std::endl;
-		std::cout << desc << std::endl;
+		PrintHelp( desc );
 		return Options();
 	}
 	
