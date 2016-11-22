@@ -1,2 +1,1 @@
-
-call "%~dp0build-mingw.cmd" -O3 -s
+call "mingw32-make" win32-release
