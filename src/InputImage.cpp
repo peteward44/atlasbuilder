@@ -23,15 +23,9 @@ InputImage::InputImage( const Options& options, const std::string& filename )
 
 
 void InputImage::Prep() {
-	// bool gotRect = false;
-	// if ( _options.trimEnabled && !_options.scaleManifestValues ) {
-		// _isTrimmed = true;
-		// _trimmedRect = _imageData->Trim( false, true );
-		// gotRect = true;
-	// }
 	if ( _options.trimEnabled && !_options.scaleManifestValues ) {
 		_isTrimmed = true;
-		_trimmedRect = _imageData->Trim( true, true );
+		_trimmedRect = _imageData->Trim( true, _options.trimBoundary );
 	}
 	if ( _options.resolution != 1.0f ) {
 		_imageData = ImageData::createNewResolution(_imageData, _options.resolution);
@@ -42,11 +36,8 @@ void InputImage::Prep() {
 	}
 	if ( _options.trimEnabled && _options.scaleManifestValues ) {
 		_isTrimmed = true;
-		_trimmedRect = _imageData->Trim( true, true );
+		_trimmedRect = _imageData->Trim( true, _options.trimBoundary );
 	}
-	// if ( gotRect ) {
-		// _imageData->Trim( _trimmedRect );
-	// }
 }
 
 

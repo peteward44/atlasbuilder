@@ -25,9 +25,8 @@ public:
 	inline int Height() const { return _height; }
 	inline int Area( int padding = 0 ) const { return ( _width + padding ) * ( _height + padding ); }
 	
-	AtlasRect Trim( bool commit, bool alignBoundary );
+	AtlasRect Trim( bool commit, int alignBoundary );
 
-//	void AddPadding(int left, int right, int top, int bottom);
 	void InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated);
 
 	void Save(const std::string& filename);

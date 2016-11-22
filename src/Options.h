@@ -19,7 +19,7 @@ struct Options {
 		boundaryAlignment = 16;
 		resolution = 1.0f;
 		scaleManifestValues = true;
-		alignOnResize = true;
+		trimBoundary = 4;
 	}
 
 	bool valid;
@@ -34,7 +34,7 @@ struct Options {
 	int padding;
 	int boundaryAlignment;
 	bool scaleManifestValues;
-	bool alignOnResize;
+	int trimBoundary;
 };
 
 Options ParseArgv(int argc, const char** argv);

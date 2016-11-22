@@ -80,7 +80,8 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 	do {
 		failed = false;
 		outputImage = new OutputImage( options, finalWidth, finalHeight );
-		rbp::MaxRectsBinPack binPacker( finalWidth, finalHeight );
+		// subtract padding for padding on left and top sides of image
+		rbp::MaxRectsBinPack binPacker( finalWidth - options.padding * 2, finalHeight - options.padding * 2 );
 
 		// Put the images into the bin packer, using the MaxRects algorithm
 		for ( const InputImage* input : inputImageList ) {
@@ -97,7 +98,7 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 			}
 			std::cout << input->Name() << " pos " << insertedRect.x << "x" << insertedRect.y << " w=" << insertedRect.w << " h=" << insertedRect.h << std::endl;
 			const bool isRotated = insertedRect.w != input->Width( true );
-			outputImage->AddSubImage( input, isRotated, insertedRect.x, insertedRect.y );
+			outputImage->AddSubImage( input, isRotated, insertedRect.x + options.padding, insertedRect.y + options.padding );
 		}
 	} while ( failed );
 	return outputImage;

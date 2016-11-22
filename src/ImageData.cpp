@@ -115,16 +115,6 @@ ImageData* ImageData::createBlank(int width, int height) {
 	return new ImageData( width, height );
 }
 
-// void ImageData::AddPadding(int left, int right, int top, int bottom) {
-	// // surrounds image with transparent pixels, used for boundary alignment
-	// // probably more efficient way of doing this but do it this way for now as it works seamlessly with resolution downsampling
-	// std::cout << "Adding padding l=" << left << " r=" << right << " t=" << top << " b=" << bottom << std::endl;
-	// VImage image = CreateBlankImage( _width + left + right, _height + top + bottom );
-	// _image = image.insert( _image, left, top );
-	// _width = _width + left + right;
-	// _height = _height + top + bottom;
-// }
-
 void ImageData::InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated) {
 	// inserts given sub image in the rect x,y position
 	if ( !isRotated ) {
@@ -140,7 +130,7 @@ void ImageData::Save(const std::string& filename) {
 	_image.write_to_file( filename.c_str() );
 }
 
-AtlasRect ImageData::Trim( bool commit, bool alignBoundary ) {
+AtlasRect ImageData::Trim( bool commit, int alignBoundary ) {
 	// adjusted from https://github.com/jcupitt/libvips/issues/233
 	// sum rows and columns, then search for the first non-zero sum in each
 	VImage mask = _image.extract_band( 3 ); // extract alpha only
@@ -153,10 +143,8 @@ AtlasRect ImageData::Trim( bool commit, bool alignBoundary ) {
 	VImage fcolumns = flippedMask.profile( &frows );
 	int bottom = fcolumns.min();
 	int right = frows.min();
-//	std::cout << "left " << left << " right " << right << std::endl;
-//	std::cout << "top " << top << " bottom " << bottom << std::endl;
-	if ( alignBoundary ) {
-		const int boundary = 8;
+	if ( alignBoundary > 0 ) {
+		const int boundary = alignBoundary;
 		int leftover = top % boundary;
 		if ( leftover > 0 ) {
 			top -= leftover;
