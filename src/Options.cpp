@@ -8,7 +8,7 @@
 #include "boost/program_options.hpp"
 #include "boost/algorithm/string.hpp"
 
-const std::string VERSION = "1.0.0";
+const std::string VERSION = "1.0.1";
 
 void PrintHelp( const boost::program_options::options_description& desc ) {
 	std::cout << "usage: atlasbuilder [options] <input files...>" << std::endl;
@@ -48,6 +48,8 @@ Options ParseArgv(int argc, const char** argv) {
 		("boundary-alignment", boost::program_options::value<int>(), "boundary-alignment to align each sub image in atlas")
 		("scale-manifest-values", boost::program_options::value<bool>(), "if using a resolution other than 1, use scaled x,y,w,h values in the manifest")
 		("trim-boundary-alignment", boost::program_options::value<int>(), "boundary-alignment to align when trimming")
+		("output-image", boost::program_options::value<bool>(), "Set to false to not output the final image")
+		("output-json", boost::program_options::value<bool>(), "Set to false to not output the final JSON file")
 	;
 
 	boost::program_options::variables_map vm;
@@ -167,6 +169,14 @@ Options ParseArgv(int argc, const char** argv) {
 	if ( vm.count( "resolution" ) ) {
 		options.resolution = vm["resolution"].as<float>();
 		std::cout << "Outputting resolution " << options.resolution << std::endl;
+	}
+
+	if ( vm.count( "output-image" ) ) {
+		options.outputImage = vm["output-image"].as<bool>();
+	}
+
+	if ( vm.count( "output-json" ) ) {
+		options.outputJson = vm["output-json"].as<bool>();
 	}
 	
 	if ( options.inputFiles.empty() ) {

@@ -20,6 +20,8 @@ struct Options {
 		resolution = 1.0f;
 		scaleManifestValues = true;
 		trimBoundary = 0;
+		outputImage = true;
+		outputJson = true;
 	}
 
 	bool valid;
@@ -35,6 +37,8 @@ struct Options {
 	int boundaryAlignment;
 	bool scaleManifestValues;
 	int trimBoundary;
+	bool outputImage;
+	bool outputJson;
 };
 
 Options ParseArgv(int argc, const char** argv);

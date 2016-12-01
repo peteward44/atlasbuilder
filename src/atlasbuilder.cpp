@@ -21,27 +21,34 @@ void create( const Options& options, std::deque<InputImage*>& inputImages ) {
 	std::cout << "Calculating..." << std::endl;
 	auto output = process( inputImages, options );
 	std::cout << "Calculation complete " << std::endl;
-	try {
-		const boost::filesystem::path p( options.outputName );
-		const boost::filesystem::path dir = p.parent_path();
-		boost::filesystem::create_directories( dir );
+	if ( options.outputJson || options.outputImage ) {
+		try {
+			const boost::filesystem::path p( options.outputName );
+			const boost::filesystem::path dir = p.parent_path();
+			boost::filesystem::create_directories( dir );
+		}
+		catch ( std::exception& ) {}
 	}
-	catch ( std::exception& ) {}
 	
-	std::string filename = options.outputName;
-	std::ostringstream resname;
-	std::cout << "Writing output image " << filename << std::endl;
-	output->Finalise( filename + ".png" );
-	
+	const std::string filename = options.outputName;
 	const std::string jsonFilename = filename + ".json";
-	std::cout << "Writing manifest " << jsonFilename << std::endl;
-	// writing manifest directly to a std::ofstream caused crash in -O3 builds (dont know why) so pipe to std::ostringstream and then output using C methods
-	std::ostringstream manifestOutput;
-	WriteManifest( output, manifestOutput, filename + ".png" );
-	FILE* jsonFile = fopen( jsonFilename.c_str(), "wt" );
-	const std::string manifest = manifestOutput.str();
-	fwrite( manifest.c_str(), manifest.size(), 1, jsonFile );
-	fclose( jsonFile );
+	
+	if ( options.outputImage ) {
+		std::ostringstream resname;
+		std::cout << "Writing output image " << filename << std::endl;
+		output->Finalise( filename + ".png" );
+	}
+	
+	if ( options.outputJson ) {
+		std::cout << "Writing manifest " << jsonFilename << std::endl;
+		// writing manifest directly to a std::ofstream caused crash in -O3 builds (dont know why) so pipe to std::ostringstream and then output using C methods
+		std::ostringstream manifestOutput;
+		WriteManifest( output, manifestOutput, filename + ".png" );
+		FILE* jsonFile = fopen( jsonFilename.c_str(), "wt" );
+		const std::string manifest = manifestOutput.str();
+		fwrite( manifest.c_str(), manifest.size(), 1, jsonFile );
+		fclose( jsonFile );
+	}
 }
 
 
