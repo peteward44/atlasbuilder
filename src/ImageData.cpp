@@ -176,8 +176,17 @@ AtlasRect ImageData::Trim( bool commit, int alignBoundary ) {
 			}
 		}
 	}
-	const int width = _width - right - left;
-	const int height = _height - bottom - top;
+	int width = _width - right - left;
+	int height = _height - bottom - top;
+	if ( width <= 0 ) {
+		// if it's a blank image, don't remove entirely - just 1 pixel wide
+		width = 1;
+		left = 0;
+	}
+	if ( height <= 0 ) {
+		height = 1;
+		top = 0;
+	}
 	if ( commit ) {
 		_image = _image.extract_area( left, top, width, height );
 		_width = width;
