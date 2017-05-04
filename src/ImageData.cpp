@@ -5,6 +5,7 @@
 #include <list>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 
 using namespace vips;
@@ -12,10 +13,44 @@ using namespace vips;
 
 bool g_isInitialised = false;
 
+std::string ConvertFilename( const std::string& filename ) {
+#ifdef WIN32
+	// Use GetFullPathNameW to convert possible relative path to absolute path, then prepend with "\\?" to make it UNC compatible which
+	// allows us to get around 260 char path limit
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert;
+	std::u16string dest = convert.from_bytes( filename );
+	char16_t* output = new char16_t[4096];
+	if ( GetFullPathNameW( dest.c_str(), dest.length(), output, 4096 ) > 0 ) {
+		std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert2;
+		std::string dest = convert2.to_bytes( output );   
+		delete[] output;
+		return "\\?\" + dest;
+	}
+#endif
+	return filename;
+}
 
-ImageData::ImageData( const std::string& filename ) {
+char* LoadFileBuffer( const std::string& filename, int& length ) {
+	std::ifstream t;
+	t.open( ConvertFilename( filename ).c_str() );
+	t.seekg(0, std::ios::end);
+	length = t.tellg();
+	t.seekg(0, std::ios::beg);
+	char* buffer = new char[length];
+	t.read(buffer, length);
+	t.close();
+	return buffer;
+}
+
+
+ImageData::ImageData( const std::string& filename ) : _fileBuffer( NULL ) {
 	try {
-		_image = VImage::new_from_file( filename.c_str(), VImage::option()->set( "access",  VIPS_ACCESS_RANDOM /* VIPS_ACCESS_SEQUENTIAL_UNBUFFERED */ ) );
+		// Use new_from_buffer instead of new_from_file in order to bypass Windows path 260 character limit
+		int length = 0;
+		_fileBuffer = LoadFileBuffer( filename, length );
+		const char* options = VImage::option()->set( "access",  VIPS_ACCESS_RANDOM /* VIPS_ACCESS_SEQUENTIAL_UNBUFFERED */ );
+		_image = VImage::new_from_buffer( _fileBuffer, length, options );
+		//_image = VImage::new_from_file( filename.c_str(), options );
 		if ( _image.bands() == 1 ) {
 			// grayscale images / no alpha
 			std::vector< vips::VImage > bands;
@@ -50,13 +85,13 @@ ImageData::ImageData( const std::string& filename ) {
 	}
 }
 
-ImageData::ImageData(int width, int height) {
+ImageData::ImageData(int width, int height) : _fileBuffer( NULL ) {
 	_width = width;
 	_height = height;
 	_image = CreateBlankImage( width, height );
 }
 
-ImageData::ImageData(ImageData* original, float resolution) {
+ImageData::ImageData(ImageData* original, float resolution) : _fileBuffer( NULL ) {
 	_image = original->_image.resize( resolution/*, VImage::option()->set( "kernel", VIPS_KERNEL_LINEAR )*/ );
 	_width = _image.width();
 	_height = _image.height();
@@ -67,6 +102,10 @@ ImageData::~ImageData() {
 		delete[] data;
 	} );
 	_rawData.clear();
+	if ( _fileBuffer != NULL ) {
+		delete[] _fileBuffer;
+		_fileBuffer = NULL;
+	}
 }
 
 
