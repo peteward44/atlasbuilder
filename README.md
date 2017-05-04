@@ -35,7 +35,7 @@ Allowed options:
 
 ## building on windows
 
-Download mingw-w64
+Download mingw-w64 (Get version 4.0.6: https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/)
 
 During install:
 Architecture: x86_64

@@ -24,13 +24,13 @@ linux-test:
 	$(LINUX_GCC) $(LINUX_FLAGS) -lboost_unit_test_framework -o target-linux/test
 
 win32-release :
-	$(WIN32_GCC) $(RELEASE_FLAGS) $(WIN32_FLAGS) -o target/atlasbuilder.exe
+	$(WIN32_GCC) $(RELEASE_FLAGS) $(WIN32_FLAGS) -DWIN32 -o target/atlasbuilder.exe
 
 win32 :
-	$(WIN32_GCC) $(WIN32_FLAGS) -o target/atlasbuilder.exe
+	$(WIN32_GCC) $(WIN32_FLAGS) -DWIN32 -o target/atlasbuilder.exe
 	
 win32-test :
-	$(WIN32_GCC) $(WIN32_TEST_FLAGS) -lboost_unit_test_framework-mgw62-mt-1_62 -o target/test.exe
+	$(WIN32_GCC) $(WIN32_TEST_FLAGS) -DWIN32 -lboost_unit_test_framework-mgw62-mt-1_62 -o target/test.exe
 
 install :
 	mkdir -p /usr/bin

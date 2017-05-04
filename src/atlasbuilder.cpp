@@ -4,6 +4,7 @@
 #include "imageProcessor.h"
 #include "ManifestWriter.h"
 #include "ImageData.h"
+#include "PathUtil.h"
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -44,7 +45,7 @@ void create( const Options& options, std::deque<InputImage*>& inputImages ) {
 		// writing manifest directly to a std::ofstream caused crash in -O3 builds (dont know why) so pipe to std::ostringstream and then output using C methods
 		std::ostringstream manifestOutput;
 		WriteManifest( output, manifestOutput, filename + ".png" );
-		FILE* jsonFile = fopen( jsonFilename.c_str(), "wt" );
+		FILE* jsonFile = fopen( ConvertFilename( jsonFilename ).c_str(), "wt" );
 		const std::string manifest = manifestOutput.str();
 		fwrite( manifest.c_str(), manifest.size(), 1, jsonFile );
 		fclose( jsonFile );

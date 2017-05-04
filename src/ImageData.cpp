@@ -1,6 +1,7 @@
 
 #include "main.h"
 #include "ImageData.h"
+#include "PathUtil.h"
 #include <string>
 #include <list>
 #include <cmath>
@@ -13,44 +14,22 @@ using namespace vips;
 
 bool g_isInitialised = false;
 
-std::string ConvertFilename( const std::string& filename ) {
-#ifdef WIN32
-	// Use GetFullPathNameW to convert possible relative path to absolute path, then prepend with "\\?" to make it UNC compatible which
-	// allows us to get around 260 char path limit
-	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert;
-	std::u16string dest = convert.from_bytes( filename );
-	char16_t* output = new char16_t[4096];
-	if ( GetFullPathNameW( dest.c_str(), dest.length(), output, 4096 ) > 0 ) {
-		std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert2;
-		std::string dest = convert2.to_bytes( output );   
-		delete[] output;
-		return "\\?\" + dest;
-	}
-#endif
-	return filename;
-}
-
-char* LoadFileBuffer( const std::string& filename, int& length ) {
-	std::ifstream t;
-	t.open( ConvertFilename( filename ).c_str() );
-	t.seekg(0, std::ios::end);
-	length = t.tellg();
-	t.seekg(0, std::ios::beg);
-	char* buffer = new char[length];
-	t.read(buffer, length);
-	t.close();
-	return buffer;
-}
-
 
 ImageData::ImageData( const std::string& filename ) : _fileBuffer( NULL ) {
 	try {
-		// Use new_from_buffer instead of new_from_file in order to bypass Windows path 260 character limit
-		int length = 0;
-		_fileBuffer = LoadFileBuffer( filename, length );
-		const char* options = VImage::option()->set( "access",  VIPS_ACCESS_RANDOM /* VIPS_ACCESS_SEQUENTIAL_UNBUFFERED */ );
-		_image = VImage::new_from_buffer( _fileBuffer, length, options );
-		//_image = VImage::new_from_file( filename.c_str(), options );
+
+		const auto options = VImage::option()->set( "access",  VIPS_ACCESS_RANDOM /* VIPS_ACCESS_SEQUENTIAL_UNBUFFERED */ );
+		bool pathTooLong = false;
+		const std::string formattedFilename = ConvertFilename( filename, &pathTooLong );
+		std::cout << "Formatted filename: " << formattedFilename << std::endl;
+		if ( pathTooLong ) {
+			// Use new_from_buffer instead of new_from_file in order to bypass Windows path 260 character limit
+			int length = 0;
+			_fileBuffer = LoadFileBuffer( formattedFilename, length );
+			_image = VImage::new_from_buffer( _fileBuffer, length, NULL, options );
+		} else {
+			_image = VImage::new_from_file( formattedFilename.c_str(), options );
+		}
 		if ( _image.bands() == 1 ) {
 			// grayscale images / no alpha
 			std::vector< vips::VImage > bands;
@@ -166,7 +145,20 @@ void ImageData::InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRo
 
 void ImageData::Save(const std::string& filename) {
 	std::cout << "Saving to " << filename << std::endl;
-	_image.write_to_file( filename.c_str() );
+	bool pathTooLong = false;
+	const std::string formattedFilename = ConvertFilename( filename, &pathTooLong );
+	std::cout << "Saving Formatted filename: " << formattedFilename << std::endl;
+	if ( pathTooLong ) {
+		// write to buffer first, then to disk to avoid 260 char limit on windows
+		const int bufferSize = _width * _height * 4;
+		size_t lengthOut = 0;
+		unsigned char* buffer = new unsigned char[ bufferSize ];
+		_image.write_to_buffer( ".png", reinterpret_cast<void**>(&buffer), reinterpret_cast<size_t*>(&lengthOut), NULL );
+		SaveFileBuffer( formattedFilename, buffer, lengthOut );
+		delete[] buffer;
+	} else {
+		_image.write_to_file( formattedFilename.c_str() );
+	}
 }
 
 AtlasRect ImageData::Trim( bool commit, int alignBoundary ) {

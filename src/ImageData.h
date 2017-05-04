@@ -10,7 +10,7 @@
 // Abstraction interface for vips
 class ImageData {
 	vips::VImage _image;
-	char* _fileBuffer;
+	unsigned char* _fileBuffer;
 	int _width, _height;
 	std::vector<unsigned char*> _rawData;
 
