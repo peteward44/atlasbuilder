@@ -41,12 +41,13 @@ std::string ConvertFilename( const std::string& filename, bool* tooLong ) {
 		std::wstring wideOutput = output;
 		std::string dest = wstring_to_utf8( wideOutput );   
 		delete[] output;
-		if ( dest.length() > 250 ) {
+		// Note: Always use UNC under windows
+	//	if ( dest.length() > 250 ) {
 			if ( tooLong ) {
 				*tooLong = true;
 			}
 			return "\\\\?\\" + dest;
-		}
+	//	}
 	} else {
 		delete[] output;
 	}
