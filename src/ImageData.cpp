@@ -17,11 +17,9 @@ bool g_isInitialised = false;
 
 ImageData::ImageData( const std::string& filename ) : _fileBuffer( NULL ) {
 	try {
-
 		const auto options = VImage::option()->set( "access",  VIPS_ACCESS_RANDOM /* VIPS_ACCESS_SEQUENTIAL_UNBUFFERED */ );
 		bool pathTooLong = false;
 		const std::string formattedFilename = ConvertFilename( filename, &pathTooLong );
-		std::cout << "Formatted filename: " << formattedFilename << std::endl;
 		if ( pathTooLong ) {
 			// Use new_from_buffer instead of new_from_file in order to bypass Windows path 260 character limit
 			int length = 0;
@@ -147,7 +145,6 @@ void ImageData::Save(const std::string& filename) {
 	std::cout << "Saving to " << filename << std::endl;
 	bool pathTooLong = false;
 	const std::string formattedFilename = ConvertFilename( filename, &pathTooLong );
-	std::cout << "Saving Formatted filename: " << formattedFilename << std::endl;
 	if ( pathTooLong ) {
 		// write to buffer first, then to disk to avoid 260 char limit on windows
 		const int bufferSize = _width * _height * 4;
