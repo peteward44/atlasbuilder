@@ -8,7 +8,7 @@
 #include "boost/program_options.hpp"
 #include "boost/algorithm/string.hpp"
 
-const std::string VERSION = "1.0.3";
+const std::string VERSION = "1.1.0";
 
 void PrintHelp( const boost::program_options::options_description& desc ) {
 	std::cout << "usage: atlasbuilder [options] <input files...>" << std::endl;
