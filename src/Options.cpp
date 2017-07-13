@@ -50,6 +50,7 @@ Options ParseArgv(int argc, const char** argv) {
 		("trim-boundary-alignment", boost::program_options::value<int>(), "boundary-alignment to align when trimming")
 		("output-image", boost::program_options::value<bool>(), "Set to false to not output the final image")
 		("output-json", boost::program_options::value<bool>(), "Set to false to not output the final JSON file")
+		("resize-kernel", boost::program_options::value<std::string>(), "Algorithm to use when resizing images. Either 'nearest', 'linear', 'cubic', 'lanczos2' or 'lanczos3'")
 	;
 
 	boost::program_options::variables_map vm;
@@ -177,6 +178,11 @@ Options ParseArgv(int argc, const char** argv) {
 
 	if ( vm.count( "output-json" ) ) {
 		options.outputJson = vm["output-json"].as<bool>();
+	}
+	
+	if ( vm.count( "resize-kernel" ) ) {
+		options.resizeKernel = vm["resize-kernel"].as<std::string>();
+		std::cout << "options.resizeKernel " << options.resizeKernel << std::endl;
 	}
 	
 	if ( options.inputFiles.empty() ) {

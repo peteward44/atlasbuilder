@@ -28,7 +28,7 @@ void InputImage::Prep() {
 		_trimmedRect = _imageData->Trim( true, _options.trimBoundary );
 	}
 	if ( _options.resolution != 1.0f ) {
-		_imageData = ImageData::createNewResolution(_imageData, _options.resolution);
+		_imageData = ImageData::createNewResolution(_imageData, _options.resolution, _options.resizeKernel );
 		if ( _options.scaleManifestValues ) {
 			_originalWidth = (int)floorf( ((float)_originalWidth) * _options.resolution );
 			_originalHeight = (int)floorf( ((float)_originalHeight) * _options.resolution );

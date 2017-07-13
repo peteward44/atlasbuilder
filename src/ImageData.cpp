@@ -12,6 +12,21 @@
 using namespace vips;
 
 
+int KernelStringToEnum( const std::string& kernel ) {
+	if ( kernel == "cubic" ) {
+		return VIPS_KERNEL_CUBIC;
+	} else if ( kernel == "nearest" ) {
+		return VIPS_KERNEL_NEAREST;
+	} else if ( kernel == "lanczos2" ) {
+		return VIPS_KERNEL_LANCZOS2;
+	} else if ( kernel == "lanczos3" ) {
+		return VIPS_KERNEL_LANCZOS3;
+	} else {
+		return VIPS_KERNEL_LINEAR;
+	}
+}
+
+
 bool g_isInitialised = false;
 
 
@@ -68,8 +83,8 @@ ImageData::ImageData(int width, int height) : _fileBuffer( NULL ) {
 	_image = CreateBlankImage( width, height );
 }
 
-ImageData::ImageData(ImageData* original, float resolution) : _fileBuffer( NULL ) {
-	_image = original->_image.resize( resolution/*, VImage::option()->set( "kernel", VIPS_KERNEL_LINEAR )*/ );
+ImageData::ImageData(ImageData* original, float resolution, const std::string& resizeKernel) : _fileBuffer( NULL ) {
+	_image = original->_image.resize( resolution, VImage::option()->set( "kernel", KernelStringToEnum( resizeKernel ) ) );
 	_width = _image.width();
 	_height = _image.height();
 }
@@ -117,8 +132,8 @@ void ImageData::shutdown() {
 }
 
 // static
-ImageData* ImageData::createNewResolution(ImageData* original, float resolution) {
-	return new ImageData( original, resolution );
+ImageData* ImageData::createNewResolution(ImageData* original, float resolution, const std::string& resizeKernel) {
+	return new ImageData( original, resolution, resizeKernel );
 }
 
 // static

@@ -22,6 +22,7 @@ struct Options {
 		trimBoundary = 0;
 		outputImage = true;
 		outputJson = true;
+		resizeKernel = "linear";
 	}
 
 	bool valid;
@@ -39,6 +40,7 @@ struct Options {
 	int trimBoundary;
 	bool outputImage;
 	bool outputJson;
+	std::string resizeKernel;
 };
 
 Options ParseArgv(int argc, const char** argv);

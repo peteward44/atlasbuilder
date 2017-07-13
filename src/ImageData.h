@@ -16,7 +16,7 @@ class ImageData {
 
 	ImageData(const std::string& filename);
 	ImageData(int width, int height);
-	ImageData(ImageData* original, float resolution);
+	ImageData(ImageData* original, float resolution, const std::string& resizeKernel);
 	
 	vips::VImage CreateBlankImage( int width, int height, int bpp = 4, int memsetVal = 0 );
 	
@@ -34,7 +34,7 @@ public:
 
 	static void initialise( int argc, const char** argv );
 	static void shutdown();
-	static ImageData* createNewResolution(ImageData* original, float resolution);
+	static ImageData* createNewResolution(ImageData* original, float resolution, const std::string& resizeKernel);
 	static ImageData* createFromFile(const std::string& filename);
 	static ImageData* createBlank(int width, int height);
 };
