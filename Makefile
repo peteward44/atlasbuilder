@@ -1,6 +1,5 @@
 WIN32_GCC=x86_64-w64-mingw32-g++
 LINUX_GCC=g++
-
 RELEASE_FLAGS=-O3 -s
 SHARED_FLAGS=-g -Wall -std=c++11
 CPP_FILES=main.cpp src/*.cpp
@@ -11,6 +10,10 @@ WIN32_LIBS=-L./boost_1.62.0/lib-w64 -L./vips-dev-w64-all-8.4.1/lib -lvips-cpp -l
 WIN32_FLAGS=$(SHARED_FLAGS) $(WIN32_INCLUDE) $(CPP_FILES) $(WIN32_LIBS)
 WIN32_TEST_FLAGS=$(SHARED_FLAGS) $(WIN32_INCLUDE) $(TEST_CPP_FILES) $(WIN32_LIBS)
 LINUX_FLAGS=$(SHARED_FLAGS) $(CPP_FILES) `pkg-config vips-cpp --cflags --libs` -lboost_program_options -lboost_filesystem -lboost_system
+
+mac-release :
+	mkdir -p target-mac
+	$(LINUX_GCC) $(RELEASE_FLAGS) $(LINUX_FLAGS) -I/usr/local/include -o target-mac/atlasbuilder -pedantic
 
 linux-release :
 	mkdir -p target-linux
