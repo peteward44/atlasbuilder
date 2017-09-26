@@ -1,7 +1,9 @@
 
 #include "main.h"
-#include <boost/locale/encoding_utf.hpp>
+#include <string>
+#include <sstream>
 #include <iostream>
+#include <boost/locale/encoding_utf.hpp>
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -39,7 +41,7 @@ std::string ConvertFilename( const std::string& filename, bool* tooLong ) {
 	wchar_t* output = new wchar_t[4096];
 	if ( GetFullPathNameW( wideFilename.c_str(), 4096, output, NULL ) > 0 ) {
 		std::wstring wideOutput = output;
-		std::string dest = wstring_to_utf8( wideOutput );   
+		std::string dest = wstring_to_utf8( wideOutput );
 		delete[] output;
 		// Note: Always use UNC under windows
 	//	if ( dest.length() > 250 ) {

@@ -54,6 +54,24 @@ Add C:\Program Files\mingw-w64\x86_64-6.2.0-posix-seh-rt_v5-rev1\mingw64\bin to 
 reboot
 run build-mingw-release.cmd or ming32-make win32-release
 
+
+## building on Mac
+
+You'll need to use Homebrew (or other package manager) to install the boost dependency. We've used Homebrew in our case.
+
+```
+brew install boost
+```
+
+Make sure you have XCode installed and updated. If you don't, after the installation is completed, you'll need to open XCode once, accept the Terms & Conditions and then the building packages will be installed
+
+After getting everything installed, just run
+
+```
+make mac-release
+```
+
+
 ## building on linux
 
 ```
