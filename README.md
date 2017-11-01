@@ -98,6 +98,7 @@ target/test.exe
 ## build .deb file
 
 ```
+sudo apt-get install checkinstall
 make deb
 ```
 

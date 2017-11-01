@@ -78,8 +78,9 @@ unsigned char* LoadFileBuffer( const std::string& filename, int& length ) {
 	length = ftell( file );
 	fseek( file, 0, SEEK_SET );
 	unsigned char* buffer = new unsigned char[length+1];
-	fread( buffer, length, 1, file );
+	const size_t actualRead = fread( buffer, length, 1, file );
 	fclose( file );
+	buffer[ actualRead+1 ] = 0;
 	return buffer;
 #endif
 }

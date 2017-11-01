@@ -8,21 +8,29 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <vips/resample.h>
 
 using namespace vips;
+
+const int MY_VIPS_KERNEL_NEAREST = 0;
+const int MY_VIPS_KERNEL_LINEAR = 1;
+const int MY_VIPS_KERNEL_CUBIC = 2;
+const int MY_VIPS_KERNEL_LANCZOS2 = 3;
+const int MY_VIPS_KERNEL_LANCZOS3 = 4;
+const int MY_VIPS_KERNEL_LAST = 5;
 
 
 int KernelStringToEnum( const std::string& kernel ) {
 	if ( kernel == "cubic" ) {
-		return VIPS_KERNEL_CUBIC;
+		return MY_VIPS_KERNEL_CUBIC;
 	} else if ( kernel == "nearest" ) {
-		return VIPS_KERNEL_NEAREST;
+		return MY_VIPS_KERNEL_NEAREST;
 	} else if ( kernel == "lanczos2" ) {
-		return VIPS_KERNEL_LANCZOS2;
+		return MY_VIPS_KERNEL_LANCZOS2;
 	} else if ( kernel == "lanczos3" ) {
-		return VIPS_KERNEL_LANCZOS3;
+		return MY_VIPS_KERNEL_LANCZOS3;
 	} else {
-		return VIPS_KERNEL_LINEAR;
+		return MY_VIPS_KERNEL_LINEAR;
 	}
 }
 

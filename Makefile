@@ -48,7 +48,7 @@ deb :
 		--nodoc \
 		--maintainer="Pete Ward \\<peteward44@gmail.com\\>" \
 		--pkgarch=`dpkg --print-architecture` \
-		--pkgversion="1.0.0" \
+		--pkgversion="1.1.0" \
 		--pkgrelease="SNAPSHOT" \
 		--pkgname=atlasbuilder \
 		--requires="libc6 \(\>= 2.4\),libgcc1 \(\>= 1:4.1.1\),libstdc++6 \(\>= 4.1.1\),libvips42 \(\>= 8.2.0\)"
