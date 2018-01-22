@@ -8,7 +8,7 @@
 
 // Args library from https://github.com/Taywee/args
 
-const std::string VERSION = "1.1.0";
+const std::string VERSION = "2.0.0";
 
 void PrintHelp() {
 	std::cout << "usage: atlasbuilder [options] <input files...>" << std::endl;
