@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
-#include "boost/filesystem.hpp"
+#include <experimental/filesystem>
 
 
 void RectToJSON( const AtlasRect& rect, std::ostream& ostr ) {
@@ -20,8 +20,8 @@ std::string BoolName( bool b ) {
 
 
 void WriteManifest( const OutputImage* output, std::ostream& ostr, const std::string& imageFilename ) {
-	const boost::filesystem::path p( imageFilename );
-	const boost::filesystem::path filename = p.leaf();
+	const std::experimental::filesystem::path p( imageFilename );
+	const std::experimental::filesystem::path filename = p.filename();
 
 	const auto& subImages = output->SubImages();
 	ostr << "{";

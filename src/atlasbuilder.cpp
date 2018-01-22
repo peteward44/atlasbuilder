@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
-#include "boost/filesystem.hpp"
+#include <experimental/filesystem>
 
 
 void create( const Options& options, std::deque<InputImage*>& inputImages ) {
@@ -24,9 +24,9 @@ void create( const Options& options, std::deque<InputImage*>& inputImages ) {
 	std::cout << "Calculation complete " << std::endl;
 	if ( options.outputJson || options.outputImage ) {
 		try {
-			const boost::filesystem::path p( options.outputName );
-			const boost::filesystem::path dir = p.parent_path();
-			boost::filesystem::create_directories( dir );
+			const std::experimental::filesystem::path p( options.outputName );
+			const std::experimental::filesystem::path dir = p.parent_path();
+			std::experimental::filesystem::create_directories( dir );
 		}
 		catch ( std::exception& ) {}
 	}
