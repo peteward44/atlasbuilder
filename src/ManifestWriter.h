@@ -6,6 +6,6 @@
 
 class OutputImage;
 
-void WriteManifest( const OutputImage* output, std::ostream& ostr, const std::string& imageFilename );
+void WriteManifest( const OutputImage* output, std::ostream& ostr, const std::string& imageFilename, const std::string& outputFormat );
 
 #endif

@@ -44,7 +44,7 @@ void create( const Options& options, std::deque<InputImage*>& inputImages ) {
 		std::cout << "Writing manifest " << jsonFilename << std::endl;
 		// writing manifest directly to a std::ofstream caused crash in -O3 builds (dont know why) so pipe to std::ostringstream and then output using C methods
 		std::ostringstream manifestOutput;
-		WriteManifest( output, manifestOutput, filename + ".png" );
+		WriteManifest( output, manifestOutput, filename + ".png", options.manifestFormat );
 		FILE* jsonFile = fopen( ConvertFilename( jsonFilename ).c_str(), "wt" );
 		const std::string manifest = manifestOutput.str();
 		fwrite( manifest.c_str(), manifest.size(), 1, jsonFile );

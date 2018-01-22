@@ -89,6 +89,7 @@ Options ParseArgv(int argc, char** argv) {
 	
 	args::ValueFlag<float> resolution( parser, "resolution", "resolution to output (default is 1.0)", { "resolution" } );
 	args::ValueFlag<std::string> outputImage( parser, "output-image", "resolution to output (default is 1.0)", { "output-image" } );
+	args::ValueFlag<std::string> manifestFormat( parser, "manifest-format", "format to output the JSON manifest, either 'hash', 'array' or 'legacy'", { "manifest-format" } );
 	
 	args::Flag noOutputImage( parser, "no-output-image", "Do not output the final image", {"no-output-image"});	
 	args::Flag noOutputJson( parser, "no-output-json", "Do not output the final json manifest", {"no-output-json"});
@@ -206,6 +207,12 @@ Options ParseArgv(int argc, char** argv) {
 		options.resizeKernel = args::get( resizeKernel );
 		// TODO: make sure it's a valid value
 		std::cout << "options.resizeKernel " << options.resizeKernel << std::endl;
+	}
+	
+	if ( manifestFormat ) {
+		options.manifestFormat = args::get( manifestFormat );
+		// TODO: make sure valid value
+		std::cout << "options.manifestFormat " << options.manifestFormat << std::endl;
 	}
 	
 	if ( options.inputFiles.empty() ) {

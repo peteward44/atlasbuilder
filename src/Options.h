@@ -23,6 +23,7 @@ struct Options {
 		outputImage = true;
 		outputJson = true;
 		resizeKernel = "linear";
+		manifestFormat = "hash";
 	}
 
 	bool valid;
@@ -41,6 +42,7 @@ struct Options {
 	bool outputImage;
 	bool outputJson;
 	std::string resizeKernel;
+	std::string manifestFormat;
 };
 
 Options ParseArgv(int argc, char** argv);
