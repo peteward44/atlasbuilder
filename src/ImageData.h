@@ -32,7 +32,7 @@ public:
 
 	void Save(const std::string& filename);
 
-	static void initialise( int argc, const char** argv );
+	static void initialise( int argc, char** argv );
 	static void shutdown();
 	static ImageData* createNewResolution(ImageData* original, float resolution, const std::string& resizeKernel);
 	static ImageData* createFromFile(const std::string& filename);

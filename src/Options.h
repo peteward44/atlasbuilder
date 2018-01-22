@@ -43,6 +43,6 @@ struct Options {
 	std::string resizeKernel;
 };
 
-Options ParseArgv(int argc, const char** argv);
+Options ParseArgv(int argc, char** argv);
 
 #endif

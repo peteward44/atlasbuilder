@@ -53,7 +53,7 @@ void create( const Options& options, std::deque<InputImage*>& inputImages ) {
 }
 
 
-int atlasbuilder( int argc, const char** argv )
+int atlasbuilder( int argc, char** argv )
 {
 	int retCode = 0;
 	try {

@@ -1,15 +1,17 @@
 WIN32_GCC=x86_64-w64-mingw32-g++
 LINUX_GCC=g++
 RELEASE_FLAGS=-O3 -s
-SHARED_FLAGS=-g -Wall -std=c++11
+SHARED_FLAGS=-g -Wall -std=c++17
 CPP_FILES=main.cpp src/*.cpp
 TEST_CPP_FILES=src/*.cpp test/*.cpp
 
 WIN32_INCLUDE=-mms-bitfields -m64 -march=x86-64 -I./boost_1.62.0/include -I./vips-dev-w64-all-8.4.1/include -I./vips-dev-w64-all-8.4.1/include/glib-2.0 -I./vips-dev-w64-all-8.4.1/lib/glib-2.0/include
-WIN32_LIBS=-L./boost_1.62.0/lib-w64 -L./vips-dev-w64-all-8.4.1/lib -lvips-cpp -lvips -lgsf-1 -lz -ljpeg -lxml2 -lfftw3 -lm -lMagickWand-6.Q16 -llcms2 -lopenslide -ltiff -lpng16 -lexif -lMagickCore-6.Q16 -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lintl -lboost_program_options-mgw62-mt-1_62 -lboost_filesystem-mgw62-mt-1_62 -lboost_system-mgw62-mt-1_62
+# -L./boost_1.62.0/lib-w64  -lboost_filesystem-mgw62-mt-1_62 -lboost_system-mgw62-mt-1_62
+WIN32_LIBS=-L./vips-dev-w64-all-8.4.1/lib -lvips-cpp -lvips -lgsf-1 -lz -ljpeg -lxml2 -lfftw3 -lm -lMagickWand-6.Q16 -llcms2 -lopenslide -ltiff -lpng16 -lexif -lMagickCore-6.Q16 -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lintl
 WIN32_FLAGS=$(SHARED_FLAGS) $(WIN32_INCLUDE) $(CPP_FILES) $(WIN32_LIBS)
 WIN32_TEST_FLAGS=$(SHARED_FLAGS) $(WIN32_INCLUDE) $(TEST_CPP_FILES) $(WIN32_LIBS)
-LINUX_FLAGS=$(SHARED_FLAGS) $(CPP_FILES) `pkg-config vips-cpp --cflags --libs` -lboost_program_options -lboost_filesystem -lboost_system
+#  -lboost_filesystem -lboost_system
+LINUX_FLAGS=$(SHARED_FLAGS) $(CPP_FILES) `pkg-config vips-cpp --cflags --libs`
 
 mac-release :
 	mkdir -p target-mac
