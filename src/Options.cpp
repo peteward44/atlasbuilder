@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
+#include <experimental/filesystem>
 #include "args/args.hxx"
 
 // Args library from https://github.com/Taywee/args
@@ -163,10 +164,19 @@ Options ParseArgv(int argc, char** argv) {
 	}
 
 	if ( inputFiles ) {
-		for (const auto file: args::get( inputFiles ) ) {
-			std::cout << "Input file " << file << std::endl;
-			// TODO: check file exists
-			options.inputFiles.push_back( file );
+		for (const auto& file: args::get( inputFiles ) ) {
+			if ( std::experimental::filesystem::is_directory( file ) ) {
+				for ( const auto& entry: std::experimental::filesystem::recursive_directory_iterator( file ) ) {
+					const auto& subfile = entry.path();
+					if ( subfile.extension() == ".png" ) {
+						options.inputFiles.push_back( subfile.string() );
+					}
+				}
+			} else {
+				if ( std::experimental::filesystem::is_regular_file( file ) ) {
+					options.inputFiles.push_back( file );
+				}
+			}
 		}
 	}
 	
