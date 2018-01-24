@@ -65,6 +65,15 @@
 */
 
 
+std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
+
 void RectToJSON( const AtlasRect& rect, std::ostream& ostr ) {
 	ostr << "{\"x\":" << rect.x << ",\"y\":" << rect.y << ",\"w\":" << rect.w << ",\"h\":" << rect.h << "}";
 }
@@ -75,18 +84,18 @@ std::string BoolName( bool b ) {
 }
 
 
-void LegacyFormat( const OutputImage* output, std::ostream& ostr, const std::experimental::filesystem::path& filename ) {
+void LegacyFormat( const OutputImage* output, std::ostream& ostr, const std::string& filename ) {
 	const auto& subImages = output->SubImages();
 	ostr << "{";
 	ostr << "\"properties\":{";
 	ostr << "\"width\":" << output->Width() << ",";
 	ostr << "\"height\":" << output->Height() << ",";
-	ostr << "\"image\":" << filename;
+	ostr << "\"image\": \"" << filename << "\"";
 	ostr << "},";
 	ostr << "\"subImages\":{\"frames\":{";
 	std::size_t index = 0;
 	std::for_each( subImages.begin(), subImages.end(), [&] ( const SubImage& subImage ) {
-		ostr << "\"" << subImage.input->Name() << "\":{";
+		ostr << "\"" << ReplaceAll( subImage.input->Name(), "\\", "/" ) << "\":{";
 		ostr << "\"frame\":";
 		RectToJSON(subImage.manifestRect, ostr);
 		ostr << ",";
@@ -108,7 +117,7 @@ void LegacyFormat( const OutputImage* output, std::ostream& ostr, const std::exp
 }
 
 
-void HashFormat( const OutputImage* output, std::ostream& ostr, const std::experimental::filesystem::path& filename, bool isArray = false ) {
+void HashFormat( const OutputImage* output, std::ostream& ostr, const std::string& filename, bool isArray = false ) {
 /*
 
 {"frames": {
@@ -140,7 +149,7 @@ void HashFormat( const OutputImage* output, std::ostream& ostr, const std::exper
 	ostr << "{";
 	ostr << "\"meta\":{";
 	ostr << "\"app\": \"https://github.com/peteward44/atlasbuilder\",";
-	ostr << "\"image\": " << filename << ",";
+	ostr << "\"image\": \"" << filename << "\",";
 	ostr << "\"size\": {\"w\":" << output->Width() << ", \"h\": " << output->Height() << "}";
 	ostr << "},";
 	ostr << "\"frames\":";
@@ -148,9 +157,9 @@ void HashFormat( const OutputImage* output, std::ostream& ostr, const std::exper
 	std::size_t index = 0;
 	std::for_each( subImages.begin(), subImages.end(), [&] ( const SubImage& subImage ) {
 		if ( isArray ) {
-			ostr << "{ \"filename\": \"" << subImage.input->Name() << "\",";
+			ostr << "{ \"filename\": \"" << ReplaceAll( subImage.input->Name(), "\\", "/" ) << "\",";
 		} else {
-			ostr << "\"" << subImage.input->Name() << "\":{";
+			ostr << "\"" << ReplaceAll( subImage.input->Name(), "\\", "/" ) << "\":{";
 		}
 		ostr << "\"frame\":";
 		RectToJSON(subImage.manifestRect, ostr);
@@ -175,7 +184,7 @@ void HashFormat( const OutputImage* output, std::ostream& ostr, const std::exper
 
 void WriteManifest( const OutputImage* output, std::ostream& ostr, const std::string& imageFilename, const std::string& outputFormat ) {
 	const std::experimental::filesystem::path p( imageFilename );
-	const std::experimental::filesystem::path filename = p.filename();
+	const std::string filename = ReplaceAll( p.filename().string(), "\\", "/" );
 
 	if ( outputFormat == "legacy" ) {
 		LegacyFormat( output, ostr, filename );
