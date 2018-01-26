@@ -13,6 +13,7 @@ struct Options {
 		maxOutputWidth = maxOutputHeight = 8192;
 		trimEnabled = true;
 		rotationEnabled = true;
+		rotateAntiClockwise = false;
 		finalImageIsPow2 = false;
 		failOnTooBig = false;
 		padding = 2;
@@ -32,6 +33,7 @@ struct Options {
 	std::string outputName;
 	int maxOutputWidth, maxOutputHeight;
 	bool rotationEnabled;
+	bool rotateAntiClockwise;
 	bool trimEnabled;
 	bool finalImageIsPow2;
 	bool failOnTooBig;

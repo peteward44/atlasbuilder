@@ -75,6 +75,7 @@ Options ParseArgv(int argc, char** argv) {
 	args::Group xorgroup( parser, "Enable or disable rotation:", args::Group::Validators::AtMostOne );
 	args::Flag rotationEnabled( xorgroup, "rotation-enabled", "Enable sub image rotation", {"rotation-enabled"});
 	args::Flag rotationDisabled( xorgroup, "rotation-disabled", "Disable sub image rotation", {"rotation-disabled"});
+	args::Flag rotateAntiClockwise( parser, "rotation-anticlockwise", "Rotate the sub images anti-clockwise instead of clockwise", {"rotation-anticlockwise"});
 	
 	args::Group trimGroup( parser, "Enable or disable trim:", args::Group::Validators::AtMostOne );
 	args::Flag trimEnabled( trimGroup, "trim-enabled", "Enable sub image trimming", {"trim-enabled"});
@@ -147,6 +148,11 @@ Options ParseArgv(int argc, char** argv) {
 	if ( rotationDisabled ) {
 		options.rotationEnabled = false;
 		std::cout << "options.rotationEnabled " << options.rotationEnabled << std::endl;
+	}
+	
+	if ( rotateAntiClockwise ) {
+		options.rotateAntiClockwise = true;
+		std::cout << "options.rotateAntiClockwise " << options.rotateAntiClockwise << std::endl;
 	}
 
 	if ( trimEnabled ) {

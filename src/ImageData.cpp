@@ -154,12 +154,12 @@ ImageData* ImageData::createBlank(int width, int height) {
 	return new ImageData( width, height );
 }
 
-void ImageData::InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated) {
+void ImageData::InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated, bool clockwise) {
 	// inserts given sub image in the rect x,y position
 	if ( !isRotated ) {
 		_image = _image.insert( data->_image, rect.x, rect.y );
 	} else {
-		VImage image = data->_image.rot( VIPS_ANGLE_D270 );
+		VImage image = data->_image.rot( clockwise ? VIPS_ANGLE_D90 : VIPS_ANGLE_D270 );
 		_image = _image.insert( image, rect.x, rect.y );
 	}
 }

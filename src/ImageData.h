@@ -28,7 +28,7 @@ public:
 	
 	AtlasRect Trim( bool commit, int alignBoundary );
 
-	void InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated);
+	void InsertSubImage(ImageData* data, const AtlasRect& rect, bool isRotated, bool clockwise = true);
 
 	void Save(const std::string& filename);
 
