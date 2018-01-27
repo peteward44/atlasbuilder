@@ -38,6 +38,19 @@ std::string FileToString( const std::string& filename ) {
 	return str;
 }
 
+void ProcessInputFileEntry( int levelLimit, const std::experimental::filesystem::path& root, std::vector< std::string >& inputFiles, int levelIndex = 0 ) {
+	const bool recurse = levelLimit > 0 ? levelLimit > levelIndex : true;
+	if ( recurse && std::experimental::filesystem::is_directory( root ) ) {
+		for ( const auto& entry: std::experimental::filesystem::directory_iterator( root ) ) {
+			ProcessInputFileEntry( levelLimit, entry.path(), inputFiles, levelIndex + 1 );
+		}
+	} else if ( std::experimental::filesystem::is_regular_file( root ) ) {
+		if ( root.extension() == ".png" ) {
+			inputFiles.push_back( root.string() );
+		}
+	}
+}
+
 Options ParseArgv(int argc, char** argv) {
 	// check if a response file was specified
 	std::vector<std::string*> responseContents;
@@ -53,7 +66,6 @@ Options ParseArgv(int argc, char** argv) {
 			while ( std::getline( t, line ) ) {
 				responseContents.push_back( new std::string( line ) );
 				responsePointers.push_back( (char*)responseContents[ responseContents.size()-1 ]->c_str() );
-				std::cout << "line " << responsePointers[ responsePointers.size()-1 ] << std::endl;
 			}
 			argv = &responsePointers[0];
 			argc = responsePointers.size();
@@ -66,8 +78,6 @@ Options ParseArgv(int argc, char** argv) {
 	args::ValueFlag<std::string> output( parser, "output", "set output name", {"output"});
 
 	args::Flag version( parser, "version", "Output version number", {'v', "version"});
-	
-	args::PositionalList<std::string> inputFiles(parser, "input-files", "Input files to process");
 
 	args::ValueFlag<int> outputWidth( parser, "output-width", "set maximum output image width", { "output-width" } );
 	args::ValueFlag<int> outputHeight( parser, "output-height", "set maximum output image height", { "output-height" } );
@@ -98,6 +108,9 @@ Options ParseArgv(int argc, char** argv) {
 	
 	args::ValueFlag<std::string> resizeKernel( parser, "resize-kernel", "Algorithm to use when resizing images. Either 'nearest', 'linear', 'cubic', 'lanczos2' or 'lanczos3'", {"resize-kernel"});
 	
+	args::Flag recursive( parser, "recursive", "When a directory is specified on the command line, traverse recursively", {"recursive"});	
+	args::PositionalList<std::string> inputFiles(parser, "input-files", "Input files to process");
+	
 	Options options;
 		
 	try
@@ -109,7 +122,7 @@ Options ParseArgv(int argc, char** argv) {
 		std::cout << parser;
 		return options;
 	}
-	catch (args::ParseError e)
+	catch ( const args::ParseError& e )
 	{
 		std::cerr << e.what() << std::endl;
 		std::cerr << parser;
@@ -123,17 +136,14 @@ Options ParseArgv(int argc, char** argv) {
 
 	if ( output ) {
 		options.outputName = args::get( output );
-		std::cout << "options.outputName " << options.outputName << std::endl;
 	}
 
 	if ( outputWidth ) {
 		options.maxOutputWidth = args::get( outputWidth );
-		std::cout << "options.maxOutputWidth " << options.maxOutputWidth << std::endl;
 	}
 
 	if ( outputHeight ) {
 		options.maxOutputHeight = args::get( outputHeight );
-		std::cout << "options.maxOutputHeight " << options.maxOutputHeight << std::endl;
 	}
 
 	if ( failIfTooBig ) {
@@ -142,27 +152,22 @@ Options ParseArgv(int argc, char** argv) {
 
 	if ( rotationEnabled ) {
 		options.rotationEnabled = true;
-		std::cout << "options.rotationEnabled " << options.rotationEnabled << std::endl;
 	}
 
 	if ( rotationDisabled ) {
 		options.rotationEnabled = false;
-		std::cout << "options.rotationEnabled " << options.rotationEnabled << std::endl;
 	}
 	
 	if ( rotateAntiClockwise ) {
 		options.rotateAntiClockwise = true;
-		std::cout << "options.rotateAntiClockwise " << options.rotateAntiClockwise << std::endl;
 	}
 
 	if ( trimEnabled ) {
 		options.trimEnabled = true;
-		std::cout << "options.trimEnabled " << options.trimEnabled << std::endl;
 	}
 
 	if ( trimDisabled ) {
 		options.trimEnabled = false;
-		std::cout << "options.trimEnabled " << options.trimEnabled << std::endl;
 	}
 	
 	if ( powerTwo ) {
@@ -171,44 +176,28 @@ Options ParseArgv(int argc, char** argv) {
 
 	if ( inputFiles ) {
 		for (const auto& file: args::get( inputFiles ) ) {
-			if ( std::experimental::filesystem::is_directory( file ) ) {
-				for ( const auto& entry: std::experimental::filesystem::recursive_directory_iterator( file ) ) {
-					const auto& subfile = entry.path();
-					if ( subfile.extension() == ".png" ) {
-						options.inputFiles.push_back( subfile.string() );
-					}
-				}
-			} else {
-				if ( std::experimental::filesystem::is_regular_file( file ) ) {
-					options.inputFiles.push_back( file );
-				}
-			}
+			ProcessInputFileEntry( recursive ? -1 : 1, file, options.inputFiles );
 		}
 	}
 	
 	if ( padding ) {
 		options.padding = args::get( padding );
-		std::cout << "options.padding " << options.padding << std::endl;
 	}
 	
 	if ( boundaryAlignment ) {
 		options.boundaryAlignment = args::get( boundaryAlignment );
-		std::cout << "options.boundaryAlignment " << options.boundaryAlignment << std::endl;
 	}
 	
 	if ( scaleManifestValues ) {
 		options.scaleManifestValues = true;
-		std::cout << "options.scaleManifestValues " << options.scaleManifestValues << std::endl;
 	}
 	
 	if ( trimBoundaryAlignment ) {
 		options.trimBoundary = args::get( trimBoundaryAlignment );
-		std::cout << "options.trimBoundary " << options.trimBoundary << std::endl;
 	}
 	
 	if ( resolution ) {
 		options.resolution = args::get( resolution );
-		std::cout << "options.resolution " << options.resolution << std::endl;
 	}
 	
 	if ( noOutputImage ) {
@@ -222,13 +211,11 @@ Options ParseArgv(int argc, char** argv) {
 	if ( resizeKernel ) {
 		options.resizeKernel = args::get( resizeKernel );
 		// TODO: make sure it's a valid value
-		std::cout << "options.resizeKernel " << options.resizeKernel << std::endl;
 	}
 	
 	if ( manifestFormat ) {
 		options.manifestFormat = args::get( manifestFormat );
 		// TODO: make sure valid value
-		std::cout << "options.manifestFormat " << options.manifestFormat << std::endl;
 	}
 	
 	if ( options.inputFiles.empty() ) {
