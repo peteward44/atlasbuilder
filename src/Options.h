@@ -22,6 +22,7 @@ struct Options {
 		scaleManifestValues = true;
 		trimBoundary = 0;
 		outputImage = true;
+		imageFormat = "png";
 		outputJson = true;
 		resizeKernel = "linear";
 		manifestFormat = "hash";
@@ -41,6 +42,7 @@ struct Options {
 	int boundaryAlignment;
 	bool scaleManifestValues;
 	int trimBoundary;
+	std::string imageFormat;
 	bool outputImage;
 	bool outputJson;
 	std::string resizeKernel;

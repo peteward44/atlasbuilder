@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <experimental/filesystem>
+#include <boost/algorithm/string.hpp>
 #include "args/args.hxx"
 
 // Args library from https://github.com/Taywee/args
@@ -45,7 +46,8 @@ void ProcessInputFileEntry( int levelLimit, const std::experimental::filesystem:
 			ProcessInputFileEntry( levelLimit, entry.path(), inputFiles, levelIndex + 1 );
 		}
 	} else if ( std::experimental::filesystem::is_regular_file( root ) ) {
-		if ( root.extension() == ".png" ) {
+		const auto ext = boost::algorithm::to_lower_copy( root.extension().string() );
+		if ( ext == ".png" ) {
 			inputFiles.push_back( root.string() );
 		}
 	}
@@ -100,9 +102,9 @@ Options ParseArgv(int argc, char** argv) {
 	args::ValueFlag<int> trimBoundaryAlignment( parser, "trim-boundary-alignment", "boundary-alignment to align when trimming", { "trim-boundary-alignment" } );
 	
 	args::ValueFlag<float> resolution( parser, "resolution", "resolution to output (default is 1.0)", { "resolution" } );
-	args::ValueFlag<std::string> outputImage( parser, "output-image", "resolution to output (default is 1.0)", { "output-image" } );
 	args::ValueFlag<std::string> manifestFormat( parser, "manifest-format", "format to output the JSON manifest, either 'hash', 'array' or 'legacy'", { "manifest-format" } );
-	
+//	args::ValueFlag<std::string> imageFormat( parser, "image-format", "format to output the image, either 'png', 'dds' or 'ktx'", { "image-format" } );
+		
 	args::Flag noOutputImage( parser, "no-output-image", "Do not output the final image", {"no-output-image"});	
 	args::Flag noOutputJson( parser, "no-output-json", "Do not output the final json manifest", {"no-output-json"});
 	
@@ -217,6 +219,11 @@ Options ParseArgv(int argc, char** argv) {
 		options.manifestFormat = args::get( manifestFormat );
 		// TODO: make sure valid value
 	}
+	
+//	if ( imageFormat ) {
+//		options.imageFormat = args::get( imageFormat );
+//		// TODO: make sure valid value
+//	}
 	
 	if ( options.inputFiles.empty() ) {
 		std::cerr << "No input files specified on command line" << std::endl;
