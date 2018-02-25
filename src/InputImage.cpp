@@ -14,6 +14,7 @@ InputImage::InputImage( const Options& options, const std::string& filename )
 	, _isTrimmed( false )
 	, _resolution( 1.0f )
 	, _imageData( NULL )
+	, _duplicateImage( NULL )
 {
 	_imageData = ImageData::createFromFile(filename);
 	_originalWidth = _imageData->Width();
@@ -21,6 +22,14 @@ InputImage::InputImage( const Options& options, const std::string& filename )
 	_trimmedRect = AtlasRect( 0, 0, _originalWidth, _originalHeight );
 }
 
+
+void InputImage::SetDuplicate( InputImage* image ) {
+	_duplicateImage = image;
+}
+
+InputImage* InputImage::GetDuplicate() const {
+	return _duplicateImage;
+}
 
 void InputImage::Prep() {
 	if ( _options.trimEnabled && !_options.scaleManifestValues ) {

@@ -75,6 +75,21 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 		}
 	}
 	
+	// detect identical frames
+	std::map< uint32_t, InputImage* > crcs; // map of crc vs. input image
+	for ( InputImage* input : inputImageList ) {
+		std::cout << "observing "<< input->Name() << std::endl;
+		const auto crc = input->Data()->CalculateCRC32();
+		std::cout << input->Name() << " crc " << crc << std::endl;
+		const auto it = crcs.find( crc );
+		if ( it != crcs.end() ) {
+			std::cout << "Duplicate found " << input->Name() << std::endl;
+			input->SetDuplicate( it->second );
+		} else {
+			crcs.insert( std::make_pair( crc, input ) );
+		}
+	}
+
 	bool failed;
 	OutputImage* outputImage = NULL;
 	do {
@@ -85,20 +100,25 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 
 		// Put the images into the bin packer, using the MaxRects algorithm
 		for ( const InputImage* input : inputImageList ) {
-			// TODO: detect if inserting image fails due to not enough space and handle
-			AtlasRect insertedRect = binPacker.Insert( input->Width( true ), input->Height( true ), rbp::MaxRectsBinPack::RectBestShortSideFit, options.rotationEnabled );
-			if ( insertedRect.w == 0 && insertedRect.h == 0 ) {
-				// insertion failed - image not big enough. Start again with a larger starting image
-				// TODO: account for max output size limit and non-pow2 sizes
-				failed = true;
-				if ( !ExpandSize( options, finalWidth, finalHeight ) ) {
-					throw std::runtime_error( "Input images too large for output image size limits" );
+			if ( input->GetDuplicate() == NULL ) {
+				// TODO: detect if inserting image fails due to not enough space and handle
+				AtlasRect insertedRect = binPacker.Insert( input->Width( true ), input->Height( true ), rbp::MaxRectsBinPack::RectBestShortSideFit, options.rotationEnabled );
+				if ( insertedRect.w == 0 && insertedRect.h == 0 ) {
+					// insertion failed - image not big enough. Start again with a larger starting image
+					// TODO: account for max output size limit and non-pow2 sizes
+					failed = true;
+					if ( !ExpandSize( options, finalWidth, finalHeight ) ) {
+						throw std::runtime_error( "Input images too large for output image size limits" );
+					}
+					break;
 				}
-				break;
+				std::cout << input->Name() << " pos " << insertedRect.x << "x" << insertedRect.y << " w=" << insertedRect.w << " h=" << insertedRect.h << std::endl;
+				const bool isRotated = insertedRect.w != input->Width( true );
+				outputImage->AddSubImage( input, isRotated, insertedRect.x + options.padding, insertedRect.y + options.padding );
+			} else {
+				std::cout << input->Name() << " duplicated by " << input->GetDuplicate()->Name() << std::endl;
+				outputImage->AddDuplicatedSubImage( input, input->GetDuplicate() );
 			}
-			std::cout << input->Name() << " pos " << insertedRect.x << "x" << insertedRect.y << " w=" << insertedRect.w << " h=" << insertedRect.h << std::endl;
-			const bool isRotated = insertedRect.w != input->Width( true );
-			outputImage->AddSubImage( input, isRotated, insertedRect.x + options.padding, insertedRect.y + options.padding );
 		}
 	} while ( failed );
 	return outputImage;

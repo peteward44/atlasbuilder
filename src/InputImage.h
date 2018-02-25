@@ -16,11 +16,15 @@ class InputImage {
 	bool _isTrimmed;
 	float _resolution;
 	ImageData* _imageData;
+	InputImage* _duplicateImage;
 public:
 	InputImage( const Options& options, const std::string& filename );
 	
 	void Prep();
 
+	// if the image is a duplicate of another, notify which one
+	void SetDuplicate( InputImage* image );
+	InputImage* GetDuplicate() const;
 	std::pair<int, int> CalculatePadding() const;
 
 	inline ImageData* Data() const { return _imageData; }

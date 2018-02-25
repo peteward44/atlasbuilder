@@ -27,7 +27,8 @@ class OutputImage {
 	void _SortRects();
 public:
 	OutputImage( const Options& options, int w, int h );
-	void AddSubImage( const InputImage* input, bool isRotated, int x, int y );
+	int AddSubImage( const InputImage* input, bool isRotated, int x, int y );
+	int AddDuplicatedSubImage( const InputImage* input, const InputImage* duplicate );
 	void Finalise(const std::string& filename);
 	inline const std::deque<SubImage>& SubImages() const { return _subImages; }
 	inline int Width() const { return _w; }

@@ -2,6 +2,7 @@
 #include "main.h"
 #include "ImageData.h"
 #include "PathUtil.h"
+#include "Crc32.h"
 #include <string>
 #include <list>
 #include <cmath>
@@ -244,5 +245,11 @@ AtlasRect ImageData::Trim( bool commit, int alignBoundary ) {
 		_height = height;
 	}
 	return AtlasRect( left, top, width, height );
+}
+
+uint32_t ImageData::CalculateCRC32() const
+{
+	const auto* buffer = VIPS_IMAGE_ADDR( _image, 0, 0 );
+	return crc32_16bytes_prefetch( buffer, _width * _height * 4 );
 }
 

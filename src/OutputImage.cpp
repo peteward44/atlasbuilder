@@ -13,7 +13,7 @@ OutputImage::OutputImage(const Options& options, int w, int h)
 }
 
 
-void OutputImage::AddSubImage( const InputImage* input, bool isRotated, int x, int y ) {
+int OutputImage::AddSubImage( const InputImage* input, bool isRotated, int x, int y ) {
 	// copy image data into atlas canvas, and add sub image to list
 	AtlasRect insertionRect( x, y, input->Width( true ), input->Height( true ) );
 	AtlasRect manifestRect( x, y, input->Data()->Width(), input->Data()->Height() );
@@ -33,7 +33,21 @@ void OutputImage::AddSubImage( const InputImage* input, bool isRotated, int x, i
 		if ( _actualHeight < insertionRect.y + insertionRect.w ) {
 			_actualHeight = insertionRect.y + insertionRect.w;
 		}
-	}	
+	}
+	return (int)_subImages.size()-1;
+}
+
+int OutputImage::AddDuplicatedSubImage( const InputImage* input, const InputImage* duplicate ) {
+	// find subimage of duplicate
+	const auto it = std::find_if( _subImages.begin(), _subImages.end(), [&] ( const SubImage& subImage ) {
+		return subImage.input->Name() == duplicate->Name();
+	} );
+	if ( it != _subImages.end() ) {
+		const auto& subImage = *it;
+		_subImages.push_back( SubImage( input, subImage.rotated, subImage.insertionRect, subImage.manifestRect ) );
+		return (int)_subImages.size()-1;
+	}
+	return -1;
 }
 
 void OutputImage::Finalise( const std::string& filename ) {

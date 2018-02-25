@@ -32,6 +32,8 @@ public:
 
 	void Save(const std::string& filename);
 
+	uint32_t CalculateCRC32() const;
+	
 	static void initialise( int argc, char** argv );
 	static void shutdown();
 	static ImageData* createNewResolution(ImageData* original, float resolution, const std::string& resizeKernel);
