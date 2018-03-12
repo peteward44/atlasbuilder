@@ -56,8 +56,10 @@ void OutputImage::Finalise( const std::string& filename ) {
 	height = _h;
 	ImageData* data = ImageData::createBlank(width, height);
 	std::for_each(_subImages.begin(), _subImages.end(), [&](const SubImage& subImage) {
-		std::cout << "Inserting sub image " << subImage.input->Name() << " at " << subImage.insertionRect.x << "x" << subImage.insertionRect.y << " [" << subImage.insertionRect.w << "x" << subImage.insertionRect.h << "]" << std::endl;
-		data->InsertSubImage(subImage.input->Data(), subImage.insertionRect, subImage.rotated, !_options.rotateAntiClockwise);
+		if ( subImage.input->GetDuplicate() == NULL ) {
+			std::cout << "Inserting sub image " << subImage.input->Name() << " at " << subImage.insertionRect.x << "x" << subImage.insertionRect.y << " [" << subImage.insertionRect.w << "x" << subImage.insertionRect.h << "]" << std::endl;
+			data->InsertSubImage(subImage.input->Data(), subImage.insertionRect, subImage.rotated, !_options.rotateAntiClockwise);
+		}
 	});
 	data->Save(filename);
 	delete data;
