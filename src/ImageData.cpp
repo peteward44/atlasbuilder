@@ -249,7 +249,9 @@ AtlasRect ImageData::Trim( bool commit, int alignBoundary ) {
 
 uint32_t ImageData::CalculateCRC32() const
 {
-	const auto* buffer = VIPS_IMAGE_ADDR( _image, 0, 0 );
+	auto* img = const_cast<vips::VImage*>( &_image )->get_image();
+	vips_image_wio_input( img );
+	const auto* buffer = VIPS_IMAGE_ADDR( img, 0, 0 );
 	return crc32_16bytes_prefetch( buffer, _width * _height * 4 );
 }
 

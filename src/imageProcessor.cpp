@@ -78,12 +78,9 @@ OutputImage* process( std::deque<InputImage*>& inputImageList, const Options& op
 	// detect identical frames
 	std::map< uint32_t, InputImage* > crcs; // map of crc vs. input image
 	for ( InputImage* input : inputImageList ) {
-		std::cout << "observing "<< input->Name() << std::endl;
 		const auto crc = input->Data()->CalculateCRC32();
-		std::cout << input->Name() << " crc " << crc << std::endl;
 		const auto it = crcs.find( crc );
 		if ( it != crcs.end() ) {
-			std::cout << "Duplicate found " << input->Name() << std::endl;
 			input->SetDuplicate( it->second );
 		} else {
 			crcs.insert( std::make_pair( crc, input ) );
