@@ -31,12 +31,17 @@ Use libvips for image processing as it's crazy fast https://github.com/jcupitt/l
       Enable or disable trim:
         --trim-enabled                    Enable sub image trimming
         --trim-disabled                   Disable sub image trimming
+      Enable or disable scaling
+      manifest values (defaults to
+      enabled):
+        --scale-manifest-enabled          if using a resolution other than 1,
+                                          use scaled x,y,w,h values in the
+                                          manifest
+        --scale-manifest-disabled         if using a resolution other than 1,
+                                          use original x,y,w,h values in
+                                          manifest
       --fail-if-too-big                 fail build if the output-width and
                                         output-height will be exceeded
-      --output-pow2                     final output image should always be a
-                                        power of 2
-      --scale-manifest-values           if using a resolution other than 1, use
-                                        scaled x,y,w,h values in the manifest
       --padding=[padding]               padding to insert between each sub image
                                         in atlas
       --boundary-alignment=[boundary-alignment]

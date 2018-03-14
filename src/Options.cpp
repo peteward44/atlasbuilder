@@ -98,7 +98,7 @@ Options ParseArgv(int argc, char** argv) {
 	args::Flag scaleManifestDisabled( xorScaleManifest, "scale-manifest-disabled", "if using a resolution other than 1, use original x,y,w,h values in manifest", {"scale-manifest-disabled"});
 
 	args::Flag failIfTooBig( parser, "fail-if-too-big", "fail build if the output-width and output-height will be exceeded", {"fail-if-too-big"});	
-	args::Flag powerTwo( parser, "output-pow2", "final output image should always be a power of 2", {"output-pow2"});
+	//args::Flag powerTwo( parser, "output-pow2", "final output image should always be a power of 2", {"output-pow2"});
 	
 	args::ValueFlag<int> padding( parser, "padding", "padding to insert between each sub image in atlas", { "padding" } );
 	args::ValueFlag<int> boundaryAlignment( parser, "boundary-alignment", "boundary-alignment to align each sub image in atlas", { "boundary-alignment" } );
@@ -183,9 +183,9 @@ Options ParseArgv(int argc, char** argv) {
 		options.scaleManifestValues = false;
 	}
 	
-	if ( powerTwo ) {
-		options.finalImageIsPow2 = true;
-	}
+	// if ( powerTwo ) {
+		// options.finalImageIsPow2 = true;
+	// }
 
 	if ( inputFiles ) {
 		for (const auto& file: args::get( inputFiles ) ) {
@@ -233,7 +233,7 @@ Options ParseArgv(int argc, char** argv) {
 //	}
 	
 	if ( options.inputFiles.empty() ) {
-		std::cerr << "No input files specified on command line" << std::endl;
+		std::cerr << "No input files specified on command line - Use --help option to display possible options" << std::endl;
 		return Options();
 	}
 

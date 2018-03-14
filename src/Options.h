@@ -14,7 +14,7 @@ struct Options {
 		trimEnabled = true;
 		rotationEnabled = true;
 		rotateAntiClockwise = false;
-		finalImageIsPow2 = false;
+		finalImageIsPow2 = true;
 		failOnTooBig = false;
 		padding = 2;
 		boundaryAlignment = 0;
