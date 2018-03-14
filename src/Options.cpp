@@ -93,9 +93,12 @@ Options ParseArgv(int argc, char** argv) {
 	args::Flag trimEnabled( trimGroup, "trim-enabled", "Enable sub image trimming", {"trim-enabled"});
 	args::Flag trimDisabled( trimGroup, "trim-disabled", "Disable sub image trimming", {"trim-disabled"});
 
+	args::Group xorScaleManifest( parser, "Enable or disable scaling manifest values (defaults to enabled):", args::Group::Validators::AtMostOne );
+	args::Flag scaleManifestEnabled( xorScaleManifest, "scale-manifest-enabled", "if using a resolution other than 1, use scaled x,y,w,h values in the manifest", {"scale-manifest-enabled"});
+	args::Flag scaleManifestDisabled( xorScaleManifest, "scale-manifest-disabled", "if using a resolution other than 1, use original x,y,w,h values in manifest", {"scale-manifest-disabled"});
+
 	args::Flag failIfTooBig( parser, "fail-if-too-big", "fail build if the output-width and output-height will be exceeded", {"fail-if-too-big"});	
 	args::Flag powerTwo( parser, "output-pow2", "final output image should always be a power of 2", {"output-pow2"});
-	args::Flag scaleManifestValues( parser, "scale-manifest-values", "if using a resolution other than 1, use scaled x,y,w,h values in the manifest", {"scale-manifest-values"});
 	
 	args::ValueFlag<int> padding( parser, "padding", "padding to insert between each sub image in atlas", { "padding" } );
 	args::ValueFlag<int> boundaryAlignment( parser, "boundary-alignment", "boundary-alignment to align each sub image in atlas", { "boundary-alignment" } );
@@ -172,6 +175,14 @@ Options ParseArgv(int argc, char** argv) {
 		options.trimEnabled = false;
 	}
 	
+	if ( scaleManifestEnabled ) {
+		options.scaleManifestValues = true;
+	}
+	
+	if ( scaleManifestDisabled ) {
+		options.scaleManifestValues = false;
+	}
+	
 	if ( powerTwo ) {
 		options.finalImageIsPow2 = true;
 	}
@@ -188,10 +199,6 @@ Options ParseArgv(int argc, char** argv) {
 	
 	if ( boundaryAlignment ) {
 		options.boundaryAlignment = args::get( boundaryAlignment );
-	}
-	
-	if ( scaleManifestValues ) {
-		options.scaleManifestValues = true;
 	}
 	
 	if ( trimBoundaryAlignment ) {
