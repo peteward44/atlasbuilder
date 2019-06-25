@@ -2,7 +2,7 @@
 #include "main.h"
 #include "ImageData.h"
 #include "PathUtil.h"
-#include "Crc32.h"
+#include "crc32.h"
 #include <string>
 #include <list>
 #include <cmath>

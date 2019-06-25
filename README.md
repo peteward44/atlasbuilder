@@ -107,6 +107,7 @@ make mac-release
 sudo add-apt-repository ppa:dhor/myway
 sudo apt-get update
 sudo apt-get install libvips-dev
+sudo apt-get install libboost-all-dev
 
 make linux-release
 ```
